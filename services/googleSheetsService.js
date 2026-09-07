@@ -3,6 +3,13 @@ const { google } = require('googleapis');
 let sheetsClient = null;
 let cachedSpreadsheetId = null;
 
+function withTimeout(promise, timeoutMs = 5000, fallbackValue = null) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(fallbackValue), timeoutMs))
+  ]);
+}
+
 /**
  * Initialize Google Sheets API Client
  * Uses OAuth2 User Session (or Service Account JWT Fallback)
@@ -131,6 +138,15 @@ async function ensureSheetTabExists(sheets, spreadsheetId, sheetName) {
  * Append Row to a specific Google Sheet
  */
 async function appendSheetRow(sheetName, rowData) {
+  return withTimeout(_appendSheetRowInternal(sheetName, rowData), 5000, {
+    sheetName,
+    rowData,
+    isSimulation: true,
+    error: 'Google Sheets write timeout (5s limit exceeded)'
+  });
+}
+
+async function _appendSheetRowInternal(sheetName, rowData) {
   const sheets = initSheetsClient();
   const isStrictLive = process.env.GOOGLE_MODE === 'LIVE' || process.env.REQUIRE_LIVE_GOOGLE === 'true';
 
@@ -183,6 +199,15 @@ async function appendSheetRow(sheetName, rowData) {
  * Read Rows from a Google Sheet
  */
 async function getSheetRows(sheetName) {
+  return withTimeout(_getSheetRowsInternal(sheetName), 4000, {
+    sheetName,
+    rows: [],
+    isSimulation: true,
+    error: 'Google Sheets read timeout (4s limit exceeded)'
+  });
+}
+
+async function _getSheetRowsInternal(sheetName) {
   const sheets = initSheetsClient();
   const isStrictLive = process.env.GOOGLE_MODE === 'LIVE' || process.env.REQUIRE_LIVE_GOOGLE === 'true';
 

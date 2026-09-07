@@ -155,121 +155,81 @@ async function initDb(forceRefresh = false) {
     return memoryCache;
   }
 
-  return dbWriteMutex.runExclusive(async () => {
-    if (isInitialized && !forceRefresh) {
-      return memoryCache;
+  if (!memoryCache.employees || memoryCache.employees.length === 0) {
+    memoryCache.employees = generate1600ScaleDataset();
+  }
+  if (!memoryCache.users || memoryCache.users.length === 0) {
+    memoryCache.users = [
+      {
+        id: 'USR-1',
+        username: 'admin',
+        passwordHash: '$2b$10$w3V87n8V9B...mock',
+        name: 'المدير العام',
+        role: 'Admin',
+        status: 'نشط',
+        allowedRegions: 'ALL',
+        allowedProjects: 'ALL',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'USR-2',
+        username: 'supervisor_riyadh',
+        passwordHash: '$2b$10$w3V87n8V9B...mock',
+        name: 'مشرف الرياض',
+        role: 'Supervisor',
+        status: 'نشط',
+        allowedRegions: 'الرياض',
+        allowedProjects: 'ALL',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'USR-3',
+        username: 'supervisor_jeddah',
+        passwordHash: '$2b$10$w3V87n8V9B...mock',
+        name: 'مشرف جدة',
+        role: 'Supervisor',
+        status: 'نشط',
+        allowedRegions: 'جدة',
+        allowedProjects: 'ALL',
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  isInitialized = true;
+  lastSyncTime = Date.now();
+
+  // Background non-blocking sync with Google Sheets
+  Promise.all([
+    getSheetRows('Employees'),
+    getSheetRows('Employee_Documents'),
+    getSheetRows('Users'),
+    getSheetRows('Notifications'),
+    getSheetRows('Activity_Log')
+  ]).then(([empRes, docRes, userRes, notifRes, actRes]) => {
+    if (empRes && empRes.rows && empRes.rows.length > 1) {
+      const headers = empRes.rows[0];
+      memoryCache.employees = empRes.rows.slice(1).map(r => mapRowToObject(headers, r));
     }
-
-    try {
-      const [empRes, docRes, userRes, notifRes, actRes] = await Promise.all([
-        getSheetRows('Employees'),
-        getSheetRows('Employee_Documents'),
-        getSheetRows('Users'),
-        getSheetRows('Notifications'),
-        getSheetRows('Activity_Log')
-      ]);
-
-      // 1. Employees
-      if (empRes.rows && empRes.rows.length > 1) {
-        const headers = empRes.rows[0];
-        memoryCache.employees = empRes.rows.slice(1).map(r => mapRowToObject(headers, r));
-      } else {
-        memoryCache.employees = [];
-        appendSheetRow('Employees', SCHEMAS.Employees).catch(e => console.error(e));
-        if (process.env.SEED_SCALE_TEST === 'true') {
-          const scaleEmps = generate1600ScaleDataset();
-          memoryCache.employees = scaleEmps;
-          for (let i = 0; i < Math.min(10, scaleEmps.length); i++) {
-            appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, scaleEmps[i])).catch(e => console.error(e));
-          }
-        }
-      }
-
-      // 2. Documents
-      if (docRes.rows && docRes.rows.length > 1) {
-        const headers = docRes.rows[0];
-        memoryCache.documents = docRes.rows.slice(1).map(r => mapRowToObject(headers, r));
-      } else {
-        appendSheetRow('Employee_Documents', SCHEMAS.Employee_Documents).catch(e => console.error(e));
-      }
-
-      // 3. Users
-      if (userRes.rows && userRes.rows.length > 1) {
-        const headers = userRes.rows[0];
-        memoryCache.users = userRes.rows.slice(1).map(r => mapRowToObject(headers, r));
-      } else {
-        const defaultUsers = [
-          {
-            id: 'USR-1',
-            username: 'admin',
-            passwordHash: '$2b$10$w3V87n8V9B...mock',
-            name: 'المدير العام',
-            role: 'Admin',
-            status: 'نشط',
-            allowedRegions: 'ALL',
-            allowedProjects: 'ALL',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'USR-2',
-            username: 'supervisor_riyadh',
-            passwordHash: '$2b$10$w3V87n8V9B...mock',
-            name: 'مشرف الرياض',
-            role: 'Supervisor',
-            status: 'نشط',
-            allowedRegions: 'الرياض',
-            allowedProjects: 'ALL',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'USR-3',
-            username: 'supervisor_jeddah',
-            passwordHash: '$2b$10$w3V87n8V9B...mock',
-            name: 'مشرف جدة',
-            role: 'Supervisor',
-            status: 'نشط',
-            allowedRegions: 'جدة',
-            allowedProjects: 'ALL',
-            createdAt: new Date().toISOString()
-          }
-        ];
-        memoryCache.users = defaultUsers;
-        appendSheetRow('Users', SCHEMAS.Users).catch(e => console.error(e));
-        for (const u of defaultUsers) {
-          appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, u)).catch(e => console.error(e));
-        }
-      }
-
-      // 4. Notifications
-      if (notifRes.rows && notifRes.rows.length > 1) {
-        const headers = notifRes.rows[0];
-        memoryCache.notifications = notifRes.rows.slice(1).map(r => mapRowToObject(headers, r));
-      } else {
-        appendSheetRow('Notifications', SCHEMAS.Notifications).catch(e => console.error(e));
-      }
-
-      // 5. Activity Log
-      if (actRes.rows && actRes.rows.length > 1) {
-        const headers = actRes.rows[0];
-        memoryCache.activityLogs = actRes.rows.slice(1).map(r => mapRowToObject(headers, r));
-      } else {
-        appendSheetRow('Activity_Log', SCHEMAS.Activity_Log).catch(e => console.error(e));
-      }
-
-      isInitialized = true;
-      lastSyncTime = Date.now();
-      return memoryCache;
-
-    } catch (err) {
-      console.error('❌ DB Sync Error:', err.message);
-      if (!memoryCache.employees) {
-        memoryCache.employees = [];
-      }
-      isInitialized = true;
-      lastSyncTime = Date.now();
-      return memoryCache;
+    if (docRes && docRes.rows && docRes.rows.length > 1) {
+      const headers = docRes.rows[0];
+      memoryCache.documents = docRes.rows.slice(1).map(r => mapRowToObject(headers, r));
     }
-  });
+    if (userRes && userRes.rows && userRes.rows.length > 1) {
+      const headers = userRes.rows[0];
+      memoryCache.users = userRes.rows.slice(1).map(r => mapRowToObject(headers, r));
+    }
+    if (notifRes && notifRes.rows && notifRes.rows.length > 1) {
+      const headers = notifRes.rows[0];
+      memoryCache.notifications = notifRes.rows.slice(1).map(r => mapRowToObject(headers, r));
+    }
+    if (actRes && actRes.rows && actRes.rows.length > 1) {
+      const headers = actRes.rows[0];
+      memoryCache.activityLogs = actRes.rows.slice(1).map(r => mapRowToObject(headers, r));
+    }
+  }).catch(err => console.warn('Background Sheets sync warning:', err.message));
+
+  return memoryCache;
 }
 
 // ------------------------------------
