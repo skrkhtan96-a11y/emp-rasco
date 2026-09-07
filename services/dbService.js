@@ -103,6 +103,21 @@ function generate1600ScaleDataset() {
     updatedAt: new Date().toISOString()
   });
 
+  dataset.push({
+    id: '1056',
+    name: 'محمد إبراهيم حسان',
+    iqamaNumber: '2516571086',
+    jobTitle: 'مشرف سلامة',
+    region: 'الرياض',
+    project: 'مشروع المترو',
+    nationality: 'مصري',
+    absherNumber: '',
+    phone: '0509871234',
+    status: 'غير مكتمل',
+    portalStatus: 'في الانتظار',
+    updatedAt: new Date().toISOString()
+  });
+
   // Generate 1598 scale test employees
   for (let i = 3; i <= 1600; i++) {
     const empId = String(1000 + i);
@@ -344,8 +359,25 @@ async function getEmployeeById(id) {
 
 async function getEmployeeByIqama(iqamaNumber) {
   await initDb();
-  const clean = String(iqamaNumber).trim();
-  return memoryCache.employees.find(e => String(e.iqamaNumber).trim() === clean);
+  if (!iqamaNumber) return null;
+  const rawClean = String(iqamaNumber).trim();
+  const normalized = rawClean
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/\D/g, '');
+
+  return memoryCache.employees.find(e => {
+    const empIqamaNorm = String(e.iqamaNumber || '')
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/\D/g, '');
+    const empIdNorm = String(e.id || '')
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/\D/g, '');
+
+    if (normalized && (empIqamaNorm === normalized || empIdNorm === normalized)) {
+      return true;
+    }
+    return String(e.iqamaNumber).trim() === rawClean || String(e.id).trim() === rawClean;
+  });
 }
 
 async function saveEmployee(empData) {

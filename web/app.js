@@ -3083,31 +3083,11 @@ function updatePortalDashboardStats() {
   pendingReviewEl.textContent = pendingReview.toLocaleString('ar-SA');
 }
 
-function verifyPortalIqama() {
+async function verifyPortalIqama() {
   const errBox = document.getElementById('portalVerifyErrorMsg');
   errBox.style.display = 'none';
 
   state.portalRateLimit = state.portalRateLimit || { attempts: 0, lockedUntil: 0 };
-
-  if (!state.employees || state.employees.length === 0) {
-    state.employees = [{
-      Employee_ID: '10001',
-      Employee_Number: '10001',
-      Employee_Name: 'أحمد محمد علي',
-      Nationality: 'سعودي',
-      Job_Title: 'مشرف لوجستي',
-      Location: 'RUH',
-      Region_ID: 'RUH',
-      Region_Name: 'المنطقة الوسطى',
-      Project_ID: 'PRJ-001',
-      Project_Name: 'Al Nemer',
-      Mobile_Number: '0555123456',
-      Iqama_Number: '1098765432',
-      Employee_Status: 'Active',
-      Filling_Status: 'Not Started',
-      Profile_Completion_Percentage: 20
-    }];
-  }
 
   if (state.portalRateLimit.attempts >= 5 && Date.now() < state.portalRateLimit.lockedUntil) {
     const remSec = Math.ceil((state.portalRateLimit.lockedUntil - Date.now()) / 1000);
@@ -3116,24 +3096,62 @@ function verifyPortalIqama() {
     return;
   }
 
-  const enteredIqama = (document.getElementById('portalIqamaInput').value || '').trim();
-  if (!enteredIqama) {
-    errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> يرجى إدخال رقم الإقامة المكون من 10 أرقام.`;
+  const rawInput = (document.getElementById('portalIqamaInput').value || '').trim();
+  const cleanInput = rawInput.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+
+  if (!cleanInput) {
+    errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> يرجى إدخال رقم الإقامة أو الرقم الوظيفي.`;
     errBox.style.display = 'block';
     return;
   }
 
-  const getEmpIqama = (e) => String(e.Iqama_Number || e.ID_Number || e.Employee_Number || '').trim();
+  // 1. First attempt local state match
+  const normalizeNum = (s) => String(s || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
+  const targetNorm = normalizeNum(cleanInput);
 
-  // Exact Iqama Match against existing employee records
-  const matchedEmp = state.employees.find(e => getEmpIqama(e) === enteredIqama);
+  let matchedEmp = (state.employees || []).find(e => {
+    const iqamaNorm = normalizeNum(e.iqamaNumber || e.Iqama_Number || e.ID_Number);
+    const idNorm = normalizeNum(e.id || e.Employee_ID || e.Employee_Number);
+    return (targetNorm && (iqamaNorm === targetNorm || idNorm === targetNorm)) ||
+           String(e.iqamaNumber || e.Iqama_Number || '').trim() === cleanInput ||
+           String(e.id || e.Employee_ID || '').trim() === cleanInput;
+  });
+
+  // 2. If not found in local cache, call backend server API /api/portal/verify-iqama
+  if (!matchedEmp) {
+    try {
+      const res = await fetch('/api/portal/verify-iqama', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ iqamaNumber: cleanInput })
+      });
+      const data = await res.json();
+      if (data.success && data.employee) {
+        matchedEmp = {
+          Employee_ID: data.employee.id,
+          Employee_Number: data.employee.id,
+          Employee_Name: data.employee.name,
+          Iqama_Number: data.employee.iqamaNumber,
+          Job_Title: data.employee.jobTitle,
+          Region_ID: data.employee.region,
+          Location: data.employee.region,
+          Project_Name: data.employee.project,
+          Nationality: data.employee.nationality,
+          Absher_Number: data.employee.absherNumber,
+          Portal_Status: data.employee.portalStatus
+        };
+      }
+    } catch (e) {
+      console.warn('Backend verify API fallback:', e);
+    }
+  }
 
   if (matchedEmp) {
     state.activePortalEmployee = matchedEmp;
     state.portalRateLimit.attempts = 0;
 
     matchedEmp.Portal_Status = (matchedEmp.Portal_Status === 'Awaiting Employee' || !matchedEmp.Portal_Status) ? 'Employee Started' : matchedEmp.Portal_Status;
-    logActivity('Iqama Verified (Employee Portal)', true, matchedEmp.Employee_ID, matchedEmp.Employee_Name, 'تم التحقق بنجاح من رقم الإقامة');
+    logActivity('Iqama Verified (Employee Portal)', true, matchedEmp.Employee_ID || matchedEmp.id, matchedEmp.Employee_Name || matchedEmp.name, 'تم التحقق بنجاح من رقم الإقامة');
 
     document.getElementById('portalVerificationStep').style.display = 'none';
     document.getElementById('portalFormStep').style.display = 'block';
@@ -3145,7 +3163,7 @@ function verifyPortalIqama() {
     }
     errBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> تعذر التحقق من البيانات المدخلة. يرجى التأكد من رقم الإقامة والمحاولة مرة أخرى.`;
     errBox.style.display = 'block';
-    logActivity('Iqama Verification Failed (Employee Portal)', false, null, null, `رقم إقامة غير مطابق: ${enteredIqama}`);
+    logActivity('Iqama Verification Failed (Employee Portal)', false, null, null, `رقم إقامة غير مطابق: ${rawInput}`);
   }
 }
 

@@ -262,8 +262,8 @@ app.patch('/api/employees/:id', async (req, res) => {
 app.post('/api/portal/verify-iqama', portalRateLimiter, async (req, res) => {
   try {
     const { iqamaNumber } = req.body;
-    if (!iqamaNumber || String(iqamaNumber).trim().length < 10) {
-      return res.status(400).json({ success: false, error: 'بيانات الاستعلام غير صالحة' });
+    if (!iqamaNumber || String(iqamaNumber).trim().length < 3) {
+      return res.status(400).json({ success: false, error: 'بيانات الاستعلام غير صالحة. يرجى إدخال رقم الإقامة أو الرقم الوظيفي.' });
     }
 
     const cleanIqama = String(iqamaNumber).trim();
