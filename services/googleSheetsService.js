@@ -246,8 +246,6 @@ async function _getSheetRowsInternal(sheetName) {
   }
 }
 
-}
-
 /**
  * Batch Append Rows to Google Sheet (Single API Call for Scale)
  */
