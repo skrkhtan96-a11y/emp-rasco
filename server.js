@@ -12,6 +12,7 @@ const {
   getEmployeeById,
   getEmployeeByIqama,
   saveEmployee,
+  bulkSaveEmployees,
   updateEmployee,
   getDocuments,
   getDocumentsByEmployeeId,
@@ -496,21 +497,17 @@ app.post('/api/excel/import', async (req, res) => {
       return res.status(400).json({ success: false, error: 'بيانات الاستيراد غير صالحة' });
     }
 
-    const imported = [];
-    for (const item of employees) {
-      const saved = await saveEmployee(item);
-      imported.push(saved);
-    }
+    const imported = await bulkSaveEmployees(employees);
 
-    await addActivityLog({
+    addActivityLog({
       action: 'استيراد إكسل',
       details: `تم استيراد ${imported.length} سجل موظف بنجاح إلى قاعدة البيانات المركزية`,
       source: 'EXCEL_IMPORT'
-    });
+    }).catch(e => console.error(e));
 
     res.json({
       success: true,
-      message: `تم استيراد ${imported.length} موظف بنجاح إلى Google Sheets`,
+      message: `تم استيراد ${imported.length} موظف بنجاح إلى Google Sheets والإنتاج`,
       importedCount: imported.length
     });
 

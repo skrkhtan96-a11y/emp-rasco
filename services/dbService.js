@@ -392,6 +392,55 @@ async function updateEmployee(id, updateData) {
   });
 }
 
+async function bulkSaveEmployees(empArray) {
+  await initDb();
+  if (!Array.isArray(empArray)) return [];
+
+  const imported = [];
+  for (const empData of empArray) {
+    const emp = {
+      id: String(empData.id || empData.EMP || empData.Employee_ID || Date.now() + Math.random()).trim(),
+      name: String(empData.name || empData.Name || empData.Employee_Name || '').trim(),
+      iqamaNumber: String(empData.iqamaNumber || empData.Iqama_Number || empData.ID_Number || empData.National_ID || '').trim(),
+      jobTitle: String(empData.jobTitle || empData.Job_Title || empData.Occupation || '').trim(),
+      region: String(empData.region || empData.Location || empData.Region_ID || '').trim(),
+      project: String(empData.project || empData.Project_Name || empData.Project_ID || '').trim(),
+      nationality: String(empData.nationality || empData.Nationality || '').trim(),
+      absherNumber: String(empData.absherNumber || empData.Absher_Number || empData.Mobile_Number || '').trim(),
+      phone: String(empData.phone || empData.Phone || '').trim(),
+      status: String(empData.status || empData.Status || 'غير مكتمل').trim(),
+      portalStatus: String(empData.portalStatus || empData.Portal_Status || 'في الانتظار').trim(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const idx = memoryCache.employees.findIndex(e =>
+      String(e.id).trim() === emp.id ||
+      (emp.iqamaNumber && String(e.iqamaNumber).trim() === emp.iqamaNumber)
+    );
+
+    if (idx !== -1) {
+      memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
+      imported.push(memoryCache.employees[idx]);
+    } else {
+      memoryCache.employees.push(emp);
+      imported.push(emp);
+    }
+  }
+
+  // Non-blocking background sync to Google Sheets
+  (async () => {
+    for (const emp of imported) {
+      try {
+        await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp));
+      } catch (err) {
+        console.error('Bulk sheet sync item error:', err.message);
+      }
+    }
+  })();
+
+  return imported;
+}
+
 // ------------------------------------
 // Document Operations
 // ------------------------------------
@@ -555,6 +604,7 @@ module.exports = {
   getEmployeeById,
   getEmployeeByIqama,
   saveEmployee,
+  bulkSaveEmployees,
   updateEmployee,
   getDocuments,
   getDocumentsByEmployeeId,
