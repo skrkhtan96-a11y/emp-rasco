@@ -1,0 +1,19 @@
+[
+  {
+    "Activity_ID": "ACT-001",
+    "Timestamp": "2026-09-07T14:06:45.289Z",
+    "User_ID": "USR-001",
+    "User_Name": "المدير العام (RASSCO Admin)",
+    "User_Email": "admin@rassco.com.sa",
+    "Role": "Super Admin",
+    "Region_ID": "ALL",
+    "Project_ID": "ALL",
+    "Employee_ID": "",
+    "Employee_Name": "",
+    "Activity_Type": "Excel Imported",
+    "Is_Productive": true,
+    "Entity_Type": "System",
+    "Entity_ID": "MIGRATION-01",
+    "Details": "تم استيراد وتنظيف 1,529 موظفاً و 45 مشروعاً و 6 مناطق بالكامل"
+  }
+]

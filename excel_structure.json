@@ -1,0 +1,415 @@
+{
+  "file": "نسخة من Employees List.xlsx",
+  "sheet": "ManPower",
+  "headers": {
+    "location": "Location",
+    "project": "Project_Name",
+    "name": "Name",
+    "empNo": "EMP",
+    "idNumber": "ID_Number"
+  },
+  "totalRows": 1168,
+  "regions": [
+    {
+      "id": "ABHA",
+      "count": 1,
+      "projects": [
+        "DHL"
+      ]
+    },
+    {
+      "id": "ALBAHA",
+      "count": 1,
+      "projects": [
+        "Flow"
+      ]
+    },
+    {
+      "id": "ALJUAF",
+      "count": 1,
+      "projects": [
+        "DHL"
+      ]
+    },
+    {
+      "id": "ALKHRAJ",
+      "count": 3,
+      "projects": [
+        "Suleiman Al Habib"
+      ]
+    },
+    {
+      "id": "ARAR",
+      "count": 4,
+      "projects": [
+        "DHL",
+        "Flow"
+      ]
+    },
+    {
+      "id": "DAM",
+      "count": 5,
+      "projects": [
+        "Al Magdouie",
+        "Transportations"
+      ]
+    },
+    {
+      "id": "DHAHRAN",
+      "count": 1,
+      "projects": [
+        "DHL"
+      ]
+    },
+    {
+      "id": "DMM",
+      "count": 72,
+      "projects": [
+        "AWAL",
+        "DHL",
+        "Fedex",
+        "Flow",
+        "Moghrabi",
+        "SMSA",
+        "Suleiman Al Habib",
+        "Tejoury"
+      ]
+    },
+    {
+      "id": "HAIL",
+      "count": 3,
+      "projects": [
+        "Flow"
+      ]
+    },
+    {
+      "id": "HFOF",
+      "count": 1,
+      "projects": [
+        "AWAL"
+      ]
+    },
+    {
+      "id": "HTH",
+      "count": 21,
+      "projects": [
+        "XPL"
+      ]
+    },
+    {
+      "id": "JED",
+      "count": 257,
+      "projects": [
+        "Al Magdouie",
+        "Al Nahla",
+        "Al Taysser",
+        "Al Yamamh",
+        "Al yamamh",
+        "DHL",
+        "Fedex",
+        "Flow",
+        "MAERSK",
+        "Moghrabi",
+        "Naghi",
+        "SMSA",
+        "Sony",
+        "Suleiman Al Habib",
+        "Transportations",
+        "Vision Collage"
+      ]
+    },
+    {
+      "id": "KHOBAR",
+      "count": 6,
+      "projects": [
+        "Al Magdouie"
+      ]
+    },
+    {
+      "id": "KMX",
+      "count": 24,
+      "projects": [
+        "Flow",
+        "SMSA",
+        "Sony"
+      ]
+    },
+    {
+      "id": "MAD",
+      "count": 17,
+      "projects": [
+        "DHL",
+        "Flow",
+        "SMSA"
+      ]
+    },
+    {
+      "id": "MAK",
+      "count": 8,
+      "projects": [
+        "DHL",
+        "Flow"
+      ]
+    },
+    {
+      "id": "QSM",
+      "count": 30,
+      "projects": [
+        "Aramex Labor",
+        "DHL",
+        "Flow",
+        "Suleiman Al Habib"
+      ]
+    },
+    {
+      "id": "RUH",
+      "count": 574,
+      "projects": [
+        "ALJ Logistics",
+        "Al Magdouie",
+        "Al Nahla",
+        "Aramex Labor",
+        "DHL",
+        "Fedex",
+        "Fedex Labor",
+        "Flow",
+        "LG",
+        "Moghrabi",
+        "Naghi",
+        "Nami",
+        "SALASA",
+        "Sony",
+        "Star Link",
+        "Suleiman Al Habib",
+        "Tejoury",
+        "Transportations",
+        "Vision Collage",
+        "XPL"
+      ]
+    },
+    {
+      "id": "RUH - AIRPORT",
+      "count": 26,
+      "projects": [
+        "IMILE",
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - LAST MILE",
+      "count": 1,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - LOGISTIC",
+      "count": 4,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - Line Hall",
+      "count": 5,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - M. SHIFT",
+      "count": 32,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - N. SHIFT",
+      "count": 33,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "RUH - SULY",
+      "count": 15,
+      "projects": [
+        "SMSA"
+      ]
+    },
+    {
+      "id": "TAIF",
+      "count": 1,
+      "projects": [
+        "DHL"
+      ]
+    },
+    {
+      "id": "TBK",
+      "count": 11,
+      "projects": [
+        "Flow",
+        "Sony"
+      ]
+    },
+    {
+      "id": "YANBAE",
+      "count": 6,
+      "projects": [
+        "Flow"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "ALJ Logistics",
+      "count": 2
+    },
+    {
+      "name": "AWAL",
+      "count": 3
+    },
+    {
+      "name": "Al Magdouie",
+      "count": 40
+    },
+    {
+      "name": "Al Nahla",
+      "count": 48
+    },
+    {
+      "name": "Al Taysser",
+      "count": 1
+    },
+    {
+      "name": "Al Yamamh",
+      "count": 68
+    },
+    {
+      "name": "Al yamamh",
+      "count": 1
+    },
+    {
+      "name": "Aramex Labor",
+      "count": 34
+    },
+    {
+      "name": "DHL",
+      "count": 147
+    },
+    {
+      "name": "Fedex",
+      "count": 24
+    },
+    {
+      "name": "Fedex Labor",
+      "count": 55
+    },
+    {
+      "name": "Flow",
+      "count": 261
+    },
+    {
+      "name": "IMILE",
+      "count": 21
+    },
+    {
+      "name": "LG",
+      "count": 2
+    },
+    {
+      "name": "MAERSK",
+      "count": 5
+    },
+    {
+      "name": "Moghrabi",
+      "count": 8
+    },
+    {
+      "name": "Naghi",
+      "count": 28
+    },
+    {
+      "name": "Nami",
+      "count": 2
+    },
+    {
+      "name": "SALASA",
+      "count": 38
+    },
+    {
+      "name": "SMSA",
+      "count": 152
+    },
+    {
+      "name": "Sony",
+      "count": 15
+    },
+    {
+      "name": "Star Link",
+      "count": 5
+    },
+    {
+      "name": "Suleiman Al Habib",
+      "count": 109
+    },
+    {
+      "name": "Tejoury",
+      "count": 2
+    },
+    {
+      "name": "Transportations",
+      "count": 21
+    },
+    {
+      "name": "Vision Collage",
+      "count": 23
+    },
+    {
+      "name": "XPL",
+      "count": 53
+    }
+  ],
+  "sample": [
+    {
+      "seq": "1",
+      "name": "MOHAMED ABDELRAHIM ALNAZIR",
+      "empNo": "5189",
+      "idNumber": "2477430934",
+      "project": "Al Magdouie",
+      "location": "KHOBAR"
+    },
+    {
+      "seq": "2",
+      "name": "MOHAMMED AHMED IBRAHIM HABIB",
+      "empNo": "50608",
+      "idNumber": "2069973259",
+      "project": "Al Magdouie",
+      "location": "JED"
+    },
+    {
+      "seq": "3",
+      "name": "Mohammed Abdullah Abdul Rab Awad Al-Amiri",
+      "empNo": "8106",
+      "idNumber": "2121039610",
+      "project": "Al Magdouie",
+      "location": "RUH"
+    },
+    {
+      "seq": "4",
+      "name": "Abdulaziz mohammed abdullah baqutayyan",
+      "empNo": "51827",
+      "idNumber": "2153622523",
+      "project": "Al Magdouie",
+      "location": "RUH"
+    },
+    {
+      "seq": "5",
+      "name": "Ismaeel Ibrahim Hassan",
+      "empNo": "8537",
+      "idNumber": "2165060027",
+      "project": "Al Magdouie",
+      "location": "RUH"
+    }
+  ]
+}

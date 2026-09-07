@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة وثائق الموظفين | RASSCO - شركة راس السعودية المحدودة</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- RASSCO Executive Login Screen -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo-container">
+        <img src="assets/rassco_logo.png" alt="RASSCO Logo" class="login-logo">
+      </div>
+      
+      <h2 class="login-title">نظام إدارة وثائق الموظفين</h2>
+      <p class="login-subtitle">شركة راس السعودية المحدودة (RAS SAUDI COMPANY LTD)</p>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        
+        <div class="login-form-group">
+          <label>اسم المستخدم / البريد الإلكتروني:</label>
+          <div class="input-with-icon">
+            <input type="email" id="loginEmail" value="admin@rassco.com.sa" required placeholder="name@rassco.com.sa">
+            <i class="fa-solid fa-envelope input-icon"></i>
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label>كلمة المرور:</label>
+          <div class="input-with-icon">
+            <input type="password" value="••••••••" required placeholder="كلمة المرور">
+            <i class="fa-solid fa-lock input-icon"></i>
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label>الدور والصلاحية (محاكاة التجربة):</label>
+          <div class="input-with-icon">
+            <select id="loginRole">
+              <option value="Super Admin">المدير العام (Super Admin - جميع المناطق)</option>
+              <option value="HR Admin">مدير الموارد البشرية (HR Admin)</option>
+              <option value="Regional Supervisor">مشرف المنطقة (Regional Supervisor - القصيم)</option>
+              <option value="Project Manager">مدير مشروع (Project Manager - النمر)</option>
+              <option value="Viewer">مستخدم للعرض فقط (Viewer)</option>
+            </select>
+            <i class="fa-solid fa-user-shield input-icon"></i>
+            <i class="fa-solid fa-chevron-down select-arrow"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول بالنظام
+        </button>
+
+      </form>
+
+      <div class="login-footer">
+        شركة راس السعودية المحدودة © 2026 - جميع الحقوق محفوظة
+      </div>
+    </div>
+  </div>
+
+  <!-- App Workspace -->
+  <div id="app">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/rassco_logo.png" alt="RASSCO Logo" class="sidebar-logo">
+        <button class="sidebar-close-btn" onclick="closeMobileSidebar()">&times;</button>
+      </div>
+      
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="dashboard" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> لوحة التحكم</a>
+        </li>
+        <li class="nav-item" data-view="supervisors" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-bars-progress"></i></span> متابعة إنجاز المشرفين</a>
+        </li>
+        <li class="nav-item" data-view="employees" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> الموظفون المسندون</a>
+        </li>
+        <li class="nav-item" data-view="data-management" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-database" style="color: #10B981;"></i></span> إدارة البيانات والملفات (Excel)</a>
+        </li>
+        <li class="nav-item" data-view="documents" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-folder-open"></i></span> جميع المستندات</a>
+        </li>
+        <li class="nav-item" data-view="expiring" onclick="closeMobileSidebar()">
+          <a href="#">
+            <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> 
+            الوثائق القريبة من الانتهاء
+            <span class="badge-count" id="expiringBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="expired" onclick="closeMobileSidebar()">
+          <a href="#">
+            <span class="nav-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> 
+            الوثائق المنتهية
+            <span class="badge-count" id="expiredBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="missing" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-file-circle-xmark"></i></span> المستندات الناقصة</a>
+        </li>
+        <li class="nav-item" data-view="projects" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-diagram-project"></i></span> المشاريع</a>
+        </li>
+        <li class="nav-item" data-view="users" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-user-shield"></i></span> المستخدمون والصلاحيات</a>
+        </li>
+        <li class="nav-item" data-view="reports" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-file-invoice"></i></span> التقارير والتصدير</a>
+        </li>
+        <li class="nav-item" data-view="settings" onclick="closeMobileSidebar()">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-gears"></i></span> الإعدادات</a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn-secondary" onclick="handleLogout()" style="width: 100%; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Sticky Top Header -->
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="hamburger-btn" id="sidebarToggleBtn" onclick="toggleMobileSidebar()" aria-label="القائمة الجانبية">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <img src="assets/rassco_logo.png" alt="RASSCO Logo" class="mobile-logo">
+          <div class="header-title">
+            <h2 id="pageTitle">لوحة التحكم المركزية</h2>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn-icon mobile-search-toggle" onclick="toggleMobileSearch()" title="بحث"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <div class="search-box" id="headerSearchBox">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="globalSearchInput" placeholder="بحث باسم الموظف، الرقم، الإقامة، المنطقة، المشرف...">
+          </div>
+          <!-- Notification Bell -->
+          <div class="notification-wrapper" style="position: relative;">
+            <button class="btn-icon" id="notificationBtn" onclick="toggleNotificationDropdown()" title="الإشعارات">
+              <i class="fa-solid fa-bell"></i>
+              <span class="notification-badge" id="notificationBadgeCount" style="display: none;">0</span>
+            </button>
+            <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notification-header">
+                <h4><i class="fa-solid fa-bell" style="color: var(--rassco-turquoise);"></i> الإشعارات والتحديثات اللحظية</h4>
+                <button onclick="clearNotifications()" style="font-size: 11px; color: var(--rassco-turquoise); background: none; border: none; cursor: pointer; font-weight: 700;">تحديد الكل كمعروء</button>
+              </div>
+              <div class="notification-list" id="notificationList"></div>
+            </div>
+          </div>
+          <button class="btn-icon" id="themeToggle" title="تبديل المظهر"><i class="fa-solid fa-moon"></i></button>
+        </div>
+      </header>
+
+      <!-- Page Container -->
+      <div class="page-container">
+        
+        <!-- View 1: Dashboard -->
+        <section id="view-dashboard" class="view-page active">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-turquoise"><i class="fa-solid fa-users"></i></div>
+              <div class="kpi-info">
+                <h3 id="statTotalEmps">1,529</h3>
+                <p>إجمالي الموظفين</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-green"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="kpi-info">
+                <h3 id="statActiveEmps">1,529</h3>
+                <p>الموظفون النشطون</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-purple"><i class="fa-solid fa-map-location-dot"></i></div>
+              <div class="kpi-info">
+                <h3 id="statRegions">6</h3>
+                <p>إجمالي المناطق</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-red"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+              <div class="kpi-info">
+                <h3 id="statExpiredIqama">0</h3>
+                <p>إقامات منتهية</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-orange"><i class="fa-solid fa-clock"></i></div>
+              <div class="kpi-info">
+                <h3 id="statExpiringSoon">0</h3>
+                <p>وثائق تنتهي خلال 30 يوم</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-yellow"><i class="fa-solid fa-folder-minus"></i></div>
+              <div class="kpi-info">
+                <h3 id="statMissingDocs">1,529</h3>
+                <p>ملفات تحتاج استكمال</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employee Self-Service Portal Feature Card in Dashboard -->
+          <div class="card-box portal-dashboard-card" style="background: linear-gradient(135deg, rgba(0, 180, 180, 0.08), rgba(15, 23, 42, 0.04)); border: 1.5px solid var(--rassco-turquoise); border-radius: var(--radius-lg); margin-bottom: 24px; padding: 20px;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+              <div style="flex: 1; min-width: 280px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                  <i class="fa-solid fa-id-card-clip" style="font-size: 22px; color: var(--rassco-turquoise);"></i>
+                  <h3 style="margin: 0; font-weight: 800; font-size: 18px; color: var(--text-main);">بوابة استكمال بيانات الموظفين</h3>
+                  <span class="badge" style="background: var(--rassco-turquoise-light); color: var(--rassco-turquoise-dark); font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700;">Employee Self-Service Portal</span>
+                </div>
+                <p style="margin: 0; color: var(--text-muted); font-size: 13px;">رابط خارجي عام مخصص للموظفين لاستكمال بياناتهم ورفع المستندات المطلوبة عبر الهاتف أو الكمبيوتر.</p>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="openPortalDirectly()" style="background: linear-gradient(135deg, #0EA5E9, #0284C7);">
+                  <i class="fa-solid fa-up-right-from-square"></i> فتح البوابة
+                </button>
+                <button class="btn-secondary" onclick="copyGenericPortalLink()" id="copyPortalLinkBtn" style="background: var(--bg-card); border-color: var(--rassco-turquoise); color: var(--rassco-turquoise);">
+                  <i class="fa-solid fa-copy"></i> نسخ الرابط
+                </button>
+              </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed rgba(0, 180, 180, 0.25); margin: 16px 0;">
+
+            <!-- Live Portal Metrics Counters -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: center;">
+              <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 2px;">بانتظار الموظف</span>
+                <strong id="portalStatAwaiting" style="font-size: 18px; color: #F59E0B; font-weight: 800;">0</strong>
+              </div>
+              <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 2px;">بدأوا التعبئة</span>
+                <strong id="portalStatStarted" style="font-size: 18px; color: #3B82F6; font-weight: 800;">0</strong>
+              </div>
+              <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 2px;">أرسلوا البيانات</span>
+                <strong id="portalStatSubmitted" style="font-size: 18px; color: #10B981; font-weight: 800;">0</strong>
+              </div>
+              <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 600; margin-bottom: 2px;">بانتظار مراجعة المشرف</span>
+                <strong id="portalStatPendingReview" style="font-size: 18px; color: #8B5CF6; font-weight: 800;">0</strong>
+              </div>
+              <div style="text-align: center;">
+                <button class="btn-secondary" onclick="switchView('supervisors')" style="width: 100%; justify-content: center; font-size: 13px; padding: 10px;">
+                  <i class="fa-solid fa-list-check"></i> عرض المتابعة
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cascading Filter Bar -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3>متابعة الوثائق المباشرة حسب المنطقة والمشروع</h3>
+              <div class="card-header-actions">
+                <button class="btn-primary" onclick="switchView('data-management')" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-file-excel"></i> استيراد بيانات الموظفين من Excel</button>
+                <button class="btn-secondary" onclick="openNewEmployeeModal()"><i class="fa-solid fa-plus"></i> إضافة موظف جديد</button>
+              </div>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">المنطقة:</span>
+                <select class="filter-select" id="dashRegionFilter" onchange="handleRegionChange('dash')">
+                  <option value="ALL">جميع المناطق (6)</option>
+                </select>
+
+                <span class="filter-label">المشروع:</span>
+                <select class="filter-select" id="dashProjectFilter" onchange="handleProjectChange('dash')">
+                  <option value="ALL">جميع المشاريع</option>
+                </select>
+
+                <span class="filter-label">حالة التعبئة:</span>
+                <select class="filter-select" id="dashFillingFilter" onchange="renderCurrentView()">
+                  <option value="ALL">جميع الحالات</option>
+                  <option value="Not Started">لم يبدأ (Not Started)</option>
+                  <option value="In Progress">جاري التعبئة (In Progress)</option>
+                  <option value="Completed">مكتمل بالكامل (Completed)</option>
+                  <option value="Needs Review">يحتاج مراجعة (Needs Review)</option>
+                </select>
+
+                <button onclick="resetFilters()" style="padding: 8px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; font-size: 12px; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--rassco-turquoise)';this.style.color='var(--rassco-turquoise)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.color='var(--text-muted)'">
+                  <i class="fa-solid fa-rotate-left"></i> إعادة تعيين الفلاتر
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive table-desktop-view">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>حالة التعبئة</th>
+                    <th>حالة الإقامة</th>
+                    <th>حالة الجواز</th>
+                    <th>نسبة الاكتمال</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardTbody"></tbody>
+              </table>
+            </div>
+            <div id="dashboardMobileCards" class="mobile-cards-container cards-mobile-view"></div>
+          </div>
+        </section>
+
+        <!-- View 2: Supervisor Performance Monitoring Dashboard (Corporate SaaS Overhaul) -->
+        <section id="view-supervisors" class="view-page">
+          <div class="saas-container">
+            
+            <!-- Page Header Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 900; color: var(--text-main); letter-spacing: -0.3px;">
+                  متابعة أداء المشرفين
+                </h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px; font-weight: 500;">
+                  متابعة إنجاز تعبئة بيانات الموظفين ونشاط المشرفين بشكل لحظي
+                </p>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <span style="font-size: 12px; color: var(--text-dim); font-weight: 600;" id="supHeaderLastUpdated">
+                  آخر تحديث: اليوم 04:15 PM
+                </span>
+                <button class="btn-secondary" onclick="renderSupervisorPerformanceView()" style="padding: 8px 14px; font-size: 12px;">
+                  <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                </button>
+                <button class="btn-primary" onclick="exportSupervisorPerformanceReport()" style="padding: 8px 18px; font-size: 13px;">
+                  <i class="fa-solid fa-file-excel"></i> تصدير التقرير
+                </button>
+              </div>
+            </div>
+
+            <!-- 6 Corporate KPI Cards Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+              
+              <!-- Card 1: Supervisors -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md);">
+                <div class="kpi-icon kpi-turquoise" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-users-gear"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatTotalSupervisors" style="font-size: 22px; font-weight: 900;">0</h3>
+                  <p style="font-size: 12px;">المشرفون</p>
+                </div>
+              </div>
+
+              <!-- Card 2: Assigned Employees -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md);">
+                <div class="kpi-icon kpi-purple" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-id-card"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatTotalAssigned" style="font-size: 22px; font-weight: 900;">0</h3>
+                  <p style="font-size: 12px;">الموظفون المسندون</p>
+                </div>
+              </div>
+
+              <!-- Card 3: Completed -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md);">
+                <div class="kpi-icon kpi-green" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatCompleted" style="font-size: 22px; font-weight: 900; color: #10B981;">0</h3>
+                  <p style="font-size: 12px;">مكتمل</p>
+                </div>
+              </div>
+
+              <!-- Card 4: In Progress -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md);">
+                <div class="kpi-icon kpi-orange" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-spinner"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatInProgress" style="font-size: 22px; font-weight: 900; color: #F59E0B;">0</h3>
+                  <p style="font-size: 12px;">قيد العمل</p>
+                </div>
+              </div>
+
+              <!-- Card 5: Not Started -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md);">
+                <div class="kpi-icon kpi-red" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-circle-pause"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatNotStarted" style="font-size: 22px; font-weight: 900; color: #64748B;">0</h3>
+                  <p style="font-size: 12px;">لم يبدأ</p>
+                </div>
+              </div>
+
+              <!-- Card 6: Completion Rate -->
+              <div class="kpi-card" style="padding: 18px 20px; border-radius: var(--radius-md); border-color: rgba(20, 184, 166, 0.4);">
+                <div class="kpi-icon kpi-turquoise" style="width: 44px; height: 44px; font-size: 18px;"><i class="fa-solid fa-chart-pie"></i></div>
+                <div class="kpi-info">
+                  <h3 id="supStatOverallPct" style="font-size: 22px; font-weight: 900; color: var(--rassco-turquoise-dark);">0%</h3>
+                  <p style="font-size: 12px;">نسبة الإنجاز</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Compact Professional Filter Toolbar -->
+            <div class="toolbar-compact">
+              <div class="toolbar-group">
+                <select class="toolbar-select" id="supRegionFilter" onchange="handleSupRegionChange()">
+                  <option value="ALL">جميع المناطق ▼</option>
+                </select>
+
+                <select class="toolbar-select" id="supProjectFilter" onchange="handleSupProjectChange()">
+                  <option value="ALL">جميع المشاريع ▼</option>
+                </select>
+
+                <select class="toolbar-select" id="supSupervisorFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="ALL">جميع المشرفين ▼</option>
+                </select>
+
+                <select class="toolbar-select" id="supCompletionFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="ALL">جميع الحالات ▼</option>
+                  <option value="High">إنجاز عالٍ (80%+)</option>
+                  <option value="Medium">إنجاز متوسط (50%-79%)</option>
+                  <option value="Low">إنجاز منخفض (أقل من 50%)</option>
+                </select>
+
+                <select class="toolbar-select" id="supActivityFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="ALL">جميع الأنشطة ▼</option>
+                  <option value="Active Today">نشط اليوم</option>
+                  <option value="Active This Week">نشط هذا الأسبوع</option>
+                  <option value="Inactive">غير نشط</option>
+                </select>
+
+                <select class="toolbar-select" id="supSortFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="Highest">الترتيب: الأعلى إنجازاً</option>
+                  <option value="Lowest">الترتيب: الأقل إنجازاً</option>
+                  <option value="MostRemaining">الترتيب: الأكثر بقاءً</option>
+                  <option value="MostActive">الترتيب: الأكثر نشاطاً</option>
+                  <option value="MostCompleted">الترتيب: الأكثر استكمالاً</option>
+                </select>
+              </div>
+
+              <div class="toolbar-group">
+                <div style="position: relative;">
+                  <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 13px;"></i>
+                  <input type="text" id="supSearchInput" class="toolbar-search" placeholder="بحث باسم المشرف أو الموظف..." oninput="renderSupervisorPerformanceView()">
+                </div>
+
+                <button class="btn-secondary" onclick="resetSupervisorFilters()" style="height: 40px; padding: 0 14px; font-size: 12px;">
+                  <i class="fa-solid fa-rotate-left"></i> إعادة تعيين
+                </button>
+              </div>
+            </div>
+
+            <!-- Modern SaaS Supervisors Data Table -->
+            <div class="card-box" style="padding: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm);">
+              <div class="table-responsive">
+                <table class="data-table" style="border-collapse: collapse;">
+                  <thead>
+                    <tr style="height: 50px;">
+                      <th style="padding-right: 20px;">المشرف</th>
+                      <th>المنطقة</th>
+                      <th>المشاريع</th>
+                      <th style="text-align: center;">المسندون</th>
+                      <th>حالة الإنجاز</th>
+                      <th style="width: 220px;">نسبة الإنجاز</th>
+                      <th>آخر نشاط</th>
+                      <th style="text-align: center; padding-left: 20px;">الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody id="supervisorsTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- View 3: Employees List -->
+        <section id="view-employees" class="view-page">
+          <div class="card-box">
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">المنطقة:</span>
+                <select class="filter-select" id="empRegionFilter" onchange="handleRegionChange('emp')">
+                  <option value="ALL">جميع المناطق (6)</option>
+                </select>
+
+                <span class="filter-label">المشروع:</span>
+                <select class="filter-select" id="empProjectFilter" onchange="handleProjectChange('emp')">
+                  <option value="ALL">جميع المشاريع</option>
+                </select>
+
+                <span class="filter-label">حالة التعبئة:</span>
+                <select class="filter-select" id="empFillingFilter" onchange="renderCurrentView()">
+                  <option value="ALL">جميع الحالات</option>
+                  <option value="Not Started">لم يبدأ (Not Started)</option>
+                  <option value="In Progress">جاري التعبئة (In Progress)</option>
+                  <option value="Completed">مكتمل بالكامل (Completed)</option>
+                  <option value="Needs Review">يحتاج مراجعة (Needs Review)</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="switchView('data-management')" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-file-excel"></i> استيراد Excel</button>
+                <button class="btn-secondary" onclick="openNewEmployeeModal()"><i class="fa-solid fa-user-plus"></i> إضافة موظف</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الرقم الوظيفي</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>حالة التعبئة</th>
+                    <th>الإقامة</th>
+                    <th>الجواز</th>
+                    <th>آخر تحديث بواسطة</th>
+                    <th>اكتمال الملف</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTbody"></tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <div class="pagination-info" id="paginationInfo">عرض 1 - 15 من 1,529</div>
+              <div class="pagination-buttons" id="paginationButtons"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 4: Dedicated Employee Details Page View -->
+        <section id="view-employee-details" class="view-page">
+          <div class="profile-banner">
+            <div class="profile-title">
+              <button class="btn-secondary" onclick="switchView(state.previousView || 'employees')" style="margin-bottom: 12px; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); color: #FFF;">
+                <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
+              </button>
+              <h3 id="detEmpName">اسم الموظف</h3>
+              <p style="color: #94A3B8;" id="detEmpSubtitle">الرقم الوظيفي: 10001 | المنطقة الوسطى (الرياض) | مشروع النمر</p>
+              <div style="margin-top: 8px; font-size: 13px;" id="detEmpAuditorInfo">
+                <i class="fa-solid fa-user-pen"></i> تم الإنشاء أولاً بواسطة: System Migration | آخر تحديث بواسطة: المشرف
+              </div>
+            </div>
+            <div class="profile-badges">
+              <div class="progress-container" style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="detCompletionFill" style="width: 25%"></div></div>
+                <span class="progress-text" id="detCompletionText" style="color: #FFF;">25%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- High Speed Workflow Controls & Portal Actions -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; background: var(--bg-card); padding: 16px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <span id="detFillingStatusBadge"></span>
+              <span id="detPortalStatusBadge" class="badge-status status-gray" style="font-size: 12px;"><i class="fa-solid fa-globe"></i> البوابة الخارجية: لم تنشأ</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="saveAndOpenNextIncomplete()" style="background: linear-gradient(135deg, #10B981, #059669);">
+                <i class="fa-solid fa-forward-step"></i> حفظ وفتح الموظف التالي غير المكتمل
+              </button>
+            </div>
+          </div>
+
+          <!-- Supervisor Review Box for Submissions From Employee Portal -->
+          <div id="supervisorReviewBox" style="display: none; margin-bottom: 24px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(20, 184, 166, 0.08)); border: 1.5px solid var(--rassco-turquoise); border-radius: var(--radius-lg); padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+                  <i class="fa-solid fa-user-check" style="color: var(--rassco-turquoise);"></i> التحديثات الواردة من الموظف (Employee Self-Service Portal)
+                </h4>
+                <p style="font-size: 12px; color: var(--text-muted);" id="reviewSubmissionMeta">تاريخ التحديث: اليوم 07:30 PM | المصدر: البوابة الخارجية للموظف</p>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="approvePortalSubmission()" style="background: linear-gradient(135deg, #10B981, #059669);">
+                  <i class="fa-solid fa-circle-check"></i> اعتماد التحديثات
+                </button>
+                <button class="btn-secondary" onclick="openReuploadModal()" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #EF4444;">
+                  <i class="fa-solid fa-rotate-left"></i> طلب إعادة رفع وثيقة
+                </button>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: var(--bg-card); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <div><strong style="font-size: 12px; color: var(--text-muted);">رقم أبشر المدخل:</strong> <span id="reviewAbsherNo" style="font-weight: 800; color: var(--text-main);">-</span></div>
+              <div><strong style="font-size: 12px; color: var(--text-muted);">صورة الإقامة:</strong> <span id="reviewIqamaStatus" style="font-weight: 700;">-</span></div>
+              <div><strong style="font-size: 12px; color: var(--text-muted);">رخصة القيادة:</strong> <span id="reviewDrivingStatus" style="font-weight: 700;">-</span></div>
+              <div><strong style="font-size: 12px; color: var(--text-muted);">استمارة المركبة:</strong> <span id="reviewVehicleStatus" style="font-weight: 700;">-</span></div>
+              <div><strong style="font-size: 12px; color: var(--text-muted);">رخصة الفوركلفت:</strong> <span id="reviewForkliftStatus" style="font-weight: 700;">-</span></div>
+            </div>
+          </div>
+
+          <!-- Document Cards Grid -->
+          <div class="doc-section-grid">
+            
+            <!-- Iqama Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-id-card" style="color: var(--rassco-turquoise);"></i> الإقامة النظامية</h4>
+                <span id="detIqamaBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>رقم الإقامة:</label>
+                <input type="text" class="form-control" id="detIqamaNo">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تاريخ الانتهاء:</label>
+                <input type="date" class="form-control" id="detIqamaExp">
+              </div>
+
+              <!-- Persistent Image Preview -->
+              <div class="doc-preview-box" id="detIqamaPreviewBox">
+                <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+              </div>
+
+              <div class="form-group">
+                <label>تحديث/استبدال صورة الإقامة (Google Drive):</label>
+                <input type="file" class="form-control" id="detIqamaFile" accept=".jpg,.jpeg,.png,.pdf">
+              </div>
+              <button class="btn-primary" onclick="uploadSpecificDoc('Iqama')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> رفع وصيانة الإقامة إلى Google Drive
+              </button>
+            </div>
+
+            <!-- Passport Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-passport" style="color: var(--rassco-turquoise);"></i> جواز السفر</h4>
+                <span id="detPassportBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>رقم الجواز:</label>
+                <input type="text" class="form-control" id="detPassNo">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تاريخ الانتهاء:</label>
+                <input type="date" class="form-control" id="detPassExp">
+              </div>
+
+              <div class="doc-preview-box" id="detPassPreviewBox">
+                <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-file-pdf"></i> لا يوجد مستند جواز مرفوع</span>
+              </div>
+
+              <div class="form-group">
+                <label>تحديث/استبدال الجواز (Google Drive):</label>
+                <input type="file" class="form-control" id="detPassFile" accept=".jpg,.jpeg,.png,.pdf">
+              </div>
+              <button class="btn-primary" onclick="uploadSpecificDoc('Passport')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> رفع وصيانة الجواز إلى Google Drive
+              </button>
+            </div>
+
+            <!-- Driving License Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-id-card-clip" style="color: var(--rassco-turquoise);"></i> رخصة القيادة</h4>
+                <span id="detDrvBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تتوفر رخصة قيادة؟</label>
+                <div class="toggle-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="detDrvAvail" onchange="toggleDetLicenseFields()">
+                    <span class="slider"></span>
+                  </label>
+                  <span id="detDrvAvailLabel">لا يوجد</span>
+                </div>
+              </div>
+
+              <div id="detDrvFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>رقم الرخصة:</label>
+                  <input type="text" class="form-control" id="detDrvNo">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>تاريخ الانتهاء:</label>
+                  <input type="date" class="form-control" id="detDrvExp">
+                </div>
+                <div class="doc-preview-box" id="detDrvPreviewBox">
+                  <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                </div>
+                <div class="form-group">
+                  <label>تحديث رخصة القيادة (Google Drive):</label>
+                  <input type="file" class="form-control" id="detDrvFile" accept=".jpg,.jpeg,.png,.pdf">
+                </div>
+                <button class="btn-primary" onclick="uploadSpecificDoc('Driving License')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع رخصة القيادة إلى Google Drive
+                </button>
+              </div>
+            </div>
+
+            <!-- Forklift License Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-truck-ramp-box" style="color: var(--rassco-turquoise);"></i> رخصة الفوركلفت</h4>
+                <span id="detFlBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تتوفر رخصة فوركلفت؟</label>
+                <div class="toggle-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="detFlAvail" onchange="toggleDetLicenseFields()">
+                    <span class="slider"></span>
+                  </label>
+                  <span id="detFlAvailLabel">لا يوجد</span>
+                </div>
+              </div>
+
+              <div id="detFlFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>رقم الرخصة:</label>
+                  <input type="text" class="form-control" id="detFlNo">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>تاريخ الانتهاء:</label>
+                  <input type="date" class="form-control" id="detFlExp">
+                </div>
+                <div class="doc-preview-box" id="detFlPreviewBox">
+                  <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                </div>
+                <div class="form-group">
+                  <label>تحديث رخصة الفوركلفت (Google Drive):</label>
+                  <input type="file" class="form-control" id="detFlFile" accept=".jpg,.jpeg,.png,.pdf">
+                </div>
+                <button class="btn-primary" onclick="uploadSpecificDoc('Forklift License')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع رخصة الفوركلفت إلى Google Drive
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Productive Activity History Timeline -->
+          <div class="card-box" style="margin-top: 24px;">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-clock-rotate-left"></i> سجل نشاط وتعديلات الموظف (Activity Timeline)</h3>
+            </div>
+            <div id="detActivityTimeline" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- View 5: Documents -->
+        <section id="view-documents" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>سجل الوثائق والمستندات المرفوعة</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>اسم الموظف</th>
+                    <th>نوع الوثيقة</th>
+                    <th>رقم الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الحالة</th>
+                    <th>المستند</th>
+                    <th>تاريخ الرفع</th>
+                  </tr>
+                </thead>
+                <tbody id="documentsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 6: Expiring Soon -->
+        <section id="view-expiring" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>الوثائق القريبة من الانتهاء (خلال 60 يوماً)</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>نوع الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الأيام المتبقية</th>
+                    <th>الحالة</th>
+                    <th>الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="expiringTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 7: Expired Documents -->
+        <section id="view-expired" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3 style="color: var(--status-expired);"><i class="fa-solid fa-triangle-exclamation"></i> الوثائق المنتهية بالفعل</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>نوع الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="expiredTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 8: Missing Documents -->
+        <section id="view-missing" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>الموظفون ذوو الوثائق الناقصة</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>المستندات الناقصة</th>
+                    <th>نسبة الاكتمال</th>
+                    <th>إجراء استكمال</th>
+                  </tr>
+                </thead>
+                <tbody id="missingTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 9: Projects -->
+        <section id="view-projects" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>قائمة المشاريع المعتمدة حسب المناطق (45 مشروعاً)</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>معرف المشروع</th>
+                    <th>اسم المشروع</th>
+                    <th>المنطقة التابعة</th>
+                    <th>مشرف المشروع</th>
+                    <th>الموقع</th>
+                    <th>عدد الموظفين</th>
+                  </tr>
+                </thead>
+                <tbody id="projectsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 10: Users -->
+        <section id="view-users" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>إدارة مستخدمي النظام والصلاحيات والمناطق (User Accounts & Access)</h3>
+              <button class="btn-primary" onclick="openUserModal()"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الدور (Role)</th>
+                    <th>المناطق المصرحة</th>
+                    <th>المشاريع المصرحة</th>
+                    <th>آخر دخول</th>
+                    <th>آخر نشاط</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات والصلاحيات</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 11: Reports -->
+        <section id="view-reports" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>تقارير الوثائق والمناطق وتصدير Excel</h3>
+              <button class="btn-primary" onclick="exportReportsCSV()"><i class="fa-solid fa-file-excel"></i> تصدير تقرير Excel / CSV</button>
+            </div>
+            <p style="color: var(--text-muted);">يمكنك استخراج تقارير تفصيلية حسب المنطقة، المشروع، أو المشرف.</p>
+          </div>
+        </section>
+
+        <!-- View 12: Settings -->
+        <section id="view-settings" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>إعدادات النظام والربط بـ Google Drive</h3>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>اسم الشركة بالعربية:</label>
+                <input type="text" class="form-control" value="شركة راس السعودية المحدودة" readonly>
+              </div>
+              <div class="form-group">
+                <label>اسم الشركة بالإنجليزية:</label>
+                <input type="text" class="form-control" value="RAS SAUDI COMPANY LTD (RASSCO)" readonly>
+              </div>
+              <div class="form-group">
+                <label>معرف مجلد Google Drive الرئيسي:</label>
+                <input type="text" class="form-control" value="1A2b3C4d5E6f7G8h9I0j_RASSCO_DOCS" readonly>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 13: Data Management & Template-Aware Import/Export -->
+        <section id="view-data-management" class="view-page">
+          
+          <!-- Card 1: Excel Template Aware Import Section -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-excel" style="color: #10B981;"></i> استيراد بيانات الموظفين من ملف Excel (Employees List.xlsx)</h3>
+              <button class="btn-secondary" onclick="downloadExcelTemplate()"><i class="fa-solid fa-download"></i> تنزيل النموذج المعتمد (Template)</button>
+            </div>
+            
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+              قم برفع الملف الرسمي <strong>نسخة من Employees List.xlsx</strong> أو أي ملف Excel متوافق لاستيراد وتحديث كافة بيانات الموظفين والمناطق والمشاريع دفعة واحدة.
+            </p>
+
+            <div class="excel-import-box" id="excelDropzone" onclick="document.getElementById('excelFileInput').click()">
+              <i class="fa-solid fa-cloud-arrow-up fa-3x" style="color: var(--rassco-turquoise); margin-bottom: 12px;"></i>
+              <h4 style="font-size: 16px; font-weight: 800;">اسحب ملف Excel أو اضغط هنا لاختيار الملف</h4>
+              <p style="color: var(--text-dim); font-size: 13px; margin-top: 6px;">يدعم الصيغ التالية: .xlsx, .xls, .csv (القالب الرسمي: Employees List.xlsx)</p>
+              <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelFileSelect(event)" style="display: none;">
+            </div>
+
+            <!-- Template Compatibility Card -->
+            <div id="excelTemplateStatusBox" style="display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; margin-top: 20px;">
+              <!-- Populated dynamically -->
+            </div>
+
+            <!-- Interactive Import Preview Screen -->
+            <div id="excelPreviewContainer" style="display: none; margin-top: 24px;">
+              <h4 style="margin-bottom: 16px; font-weight: 800;"><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--rassco-turquoise);"></i> معاينة تفاصيل واستعادة بيانات الملف قبل الاستيراد النهائي</h4>
+
+              <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 20px;">
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-turquoise"><i class="fa-solid fa-list-ol"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatTotal">0</h3>
+                    <p>إجمالي الصفوف</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-green"><i class="fa-solid fa-user-plus"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatNew">0</h3>
+                    <p>موظفون جدد</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-purple"><i class="fa-solid fa-user-pen"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatUpdate">0</h3>
+                    <p>سيتم تحديثهم</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatDuplicates">0</h3>
+                    <p>تكرارات / تنبيهات</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>الاسم</th>
+                      <th>رقم الموظف (EMP)</th>
+                      <th>رقم الإقامة (ID)</th>
+                      <th>المشروع</th>
+                      <th>المنطقة / الموقع</th>
+                      <th>حالة المعاينة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excelPreviewTbody"></tbody>
+                </table>
+              </div>
+
+              <div style="display: flex; gap: 14px; margin-top: 20px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="cancelExcelImport()">إلغاء الاستيراد</button>
+                <button class="btn-primary" onclick="confirmExcelImport()" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-check-double"></i> تأكيد الاستيراد ودمج البيانات</button>
+              </div>
+            </div>
+
+            <!-- Last Import Information -->
+            <div style="margin-top: 20px; font-size: 13px; color: var(--text-muted); background: var(--bg-primary); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);" id="lastImportInfoBox">
+              <i class="fa-solid fa-history" style="color: var(--rassco-turquoise);"></i> آخر عملية استيراد: <strong>نسخة من Employees List.xlsx</strong> (1,529 موظف) | التاريخ: 07/09/2026 بواسطة: النظام الرئيسي
+            </div>
+          </div>
+
+          <!-- Card 2: Official Template Excel Export Section -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-export" style="color: var(--rassco-turquoise);"></i> تصدير البيانات إلى ملف Excel (.xlsx) بنفس القالب الرسمي</h3>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 18px;">
+              يستخرج النظام ملف Excel حقيقي (.xlsx) يحافظ على هيكل وتنسيق القالب الأصلي للملف بالإضافة إلى أعمدة المتابعة اللحظية وحالات الوثائق ورخص القيادة والفوركلفت والمشرفين المنفذين للتعديلات.
+            </p>
+            <button class="btn-primary" id="btnExportExcel" onclick="exportDataToOfficialExcel()"><i class="fa-solid fa-file-excel"></i> تصدير كافة البيانات إلى Excel (.xlsx)</button>
+          </div>
+
+          <!-- Card 3: Data Management & Cleanup Danger Zone (Super Admin Only) -->
+          <div class="card-box" style="border-color: rgba(239, 68, 68, 0.4); background: var(--bg-card);">
+            <div class="card-header">
+              <h3 style="color: #EF4444;"><i class="fa-solid fa-triangle-exclamation"></i> إدارة البيانات الحساسة والتنظيف (Super Admin Only)</h3>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 13px;">
+              تتيح لك هذه الأدوات إزالة بيانات الموظفين المستوردة والتشغيلية لإعادة استيراد ملف جديد، أو إجراء إعادة ضبط كاملة للنظام. يتم إنشاء نسخة احتياطية (Backup) تلقائياً قبل أي حذف.
+            </p>
+
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="openRemoveAllEmployeesModal()" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+                <i class="fa-solid fa-trash-can"></i> إزالة كافة بيانات الموظفين
+              </button>
+              <button class="btn-secondary" onclick="openFullSystemResetModal()" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.4);">
+                <i class="fa-solid fa-power-off"></i> إعادة ضبط النظام بالكامل (Full System Reset)
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- View 12: External Employee Self-Service Portal (بوابة استكمال بيانات الموظف) -->
+        <section id="view-employee-portal" class="view-page">
+          <div class="portal-container" style="max-width: 680px; margin: 0 auto; padding: 24px 16px;">
+            
+            <!-- Portal Header -->
+            <div style="text-align: center; margin-bottom: 28px; background: var(--bg-card); padding: 28px 20px; border-radius: var(--radius-xl); border: 1px solid var(--border-color); box-shadow: var(--shadow-main);">
+              <img src="assets/rassco_logo.png" alt="RASSCO Logo" style="max-width: 180px; max-height: 50px; object-fit: contain; margin-bottom: 12px;">
+              <h2 style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 6px;">بوابة استكمال بيانات ومستندات الموظف</h2>
+              <p style="font-size: 13px; color: var(--text-muted); font-weight: 600;">شركة راس السعودية المحدودة (RAS SAUDI COMPANY LTD)</p>
+              <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: var(--rassco-turquoise-light); color: var(--rassco-turquoise-dark); border-radius: 20px; font-size: 12px; font-weight: 700;">
+                <i class="fa-solid fa-shield-halved"></i> نظام إلكتروني آمن ومطابق للتنظيمات
+              </div>
+            </div>
+
+            <!-- Step 1: Iqama Verification Step -->
+            <div id="portalVerificationStep" class="card-box" style="display: block;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--rassco-turquoise-light); color: var(--rassco-turquoise-dark); display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 14px;">
+                  <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">التحقق من هوية الموظف</h3>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                  يرجى إدخال رقم الإقامة الخاص بك للتحقق من الهوية واستكمال بيانات الملف والوثائق المطلوبة.
+                </p>
+              </div>
+
+              <div id="portalVerifyErrorMsg" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; padding: 12px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; margin-bottom: 18px; text-align: center;">
+                <i class="fa-solid fa-triangle-exclamation"></i> تعذر التحقق من البيانات المدخلة. يرجى التأكد من رقم الإقامة والمحاولة مرة أخرى.
+              </div>
+
+              <div class="form-group" style="margin-bottom: 20px;">
+                <label style="font-weight: 800; font-size: 14px; margin-bottom: 8px; display: block;">رقم الإقامة النظامي (10 أرقام):</label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-id-card input-icon"></i>
+                  <input type="text" id="portalIqamaInput" placeholder="أدخل رقم الإقامة هنا..." maxlength="10" inputmode="numeric" style="font-size: 18px !important; letter-spacing: 1px;">
+                </div>
+              </div>
+
+              <button class="btn-primary" id="portalVerifyBtn" onclick="verifyPortalIqama()" style="width: 100%; min-height: 48px; font-size: 16px; justify-content: center; background: linear-gradient(135deg, var(--rassco-turquoise) 0%, var(--rassco-turquoise-dark) 100%); box-shadow: var(--shadow-turquoise);">
+                <i class="fa-solid fa-arrow-left"></i> متابعة واستكمال البيانات
+              </button>
+            </div>
+
+            <!-- Step 2: Interactive Portal Form -->
+            <div id="portalFormStep" class="card-box" style="display: none;">
+              <!-- Read-Only Master Data Summary Card -->
+              <div style="background: var(--bg-primary); padding: 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                  <div>
+                    <h3 id="portalEmpName" style="font-size: 20px; font-weight: 900; color: var(--text-main);">-</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); font-weight: 700; margin-top: 2px;" id="portalEmpSub">-</p>
+                  </div>
+                  <span class="badge-status status-blue" style="font-size: 11px;"><i class="fa-solid fa-lock"></i> بيانات رسمية محمية</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; font-size: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 8px;">
+                  <div><strong style="color: var(--text-muted);">المنطقة:</strong> <span id="portalEmpRegion" style="color: var(--text-main); font-weight: 700;">-</span></div>
+                  <div><strong style="color: var(--text-muted);">المشروع:</strong> <span id="portalEmpProject" style="color: var(--text-main); font-weight: 700;">-</span></div>
+                  <div><strong style="color: var(--text-muted);">المشرف المسؤول:</strong> <span id="portalEmpSupervisor" style="color: var(--text-main); font-weight: 700;">-</span></div>
+                  <div><strong style="color: var(--text-muted);">الجنسية:</strong> <span id="portalEmpNationality" style="color: var(--text-main); font-weight: 700;">-</span></div>
+                </div>
+              </div>
+
+              <!-- Re-upload Warning Alert (if requested) -->
+              <div id="portalReuploadAlert" style="display: none; background: rgba(245, 158, 11, 0.12); border: 1.5px solid #F59E0B; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 22px;">
+                <h4 style="color: #D97706; font-size: 14px; font-weight: 800; margin-bottom: 4px;">
+                  <i class="fa-solid fa-triangle-exclamation"></i> مطلوب إعادة رفع مستند
+                </h4>
+                <p id="portalReuploadReason" style="font-size: 13px; color: var(--text-main); font-weight: 600;">-</p>
+              </div>
+
+              <!-- Section 1: Editable Absher Number -->
+              <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+                  <i class="fa-solid fa-mobile-screen-button" style="color: var(--rassco-turquoise);"></i> 1. البيانات النصية المتاحة للتحديث
+                </h4>
+                <div class="form-group">
+                  <label style="font-weight: 700; font-size: 13px;">رقم الجوال المعتمد في أبشر (Absher Number): <span style="color: red;">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-phone input-icon"></i>
+                    <input type="text" id="portalAbsherInput" placeholder="05XXXXXXXX" maxlength="10" inputmode="numeric" style="font-size: 16px !important;">
+                  </div>
+                  <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">ملاحظة: هذا الحقل هو الوحيد المتاح للتعديل من قِبلك كقيمة نصية.</span>
+                </div>
+              </div>
+
+              <!-- Section 2: Optional Licenses Availability Toggles -->
+              <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 14px;">
+                  <i class="fa-solid fa-sliders" style="color: var(--rassco-turquoise);"></i> 2. تحديد توفر الرخص والمستندات الاختيارية
+                </h4>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <!-- Driving License Toggle -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <span style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-id-card-clip" style="color: var(--rassco-turquoise);"></i> هل لديك رخصة قيادة؟</span>
+                    <select id="portalDrivingToggle" onchange="togglePortalDocCard('DrivingLicense')" style="width: 100px; font-size: 14px !important; padding: 6px 10px; min-height: 38px;">
+                      <option value="No">لا</option>
+                      <option value="Yes">نعم</option>
+                    </select>
+                  </div>
+
+                  <!-- Vehicle License Toggle -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <span style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-car" style="color: var(--rassco-turquoise);"></i> هل لديك رخصة سير / استمارة مركبة؟</span>
+                    <select id="portalVehicleToggle" onchange="togglePortalDocCard('VehicleLicense')" style="width: 100px; font-size: 14px !important; padding: 6px 10px; min-height: 38px;">
+                      <option value="No">لا</option>
+                      <option value="Yes">نعم</option>
+                    </select>
+                  </div>
+
+                  <!-- Forklift License Toggle -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <span style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-truck-ramp-box" style="color: var(--rassco-turquoise);"></i> هل لديك رخصة تشغيل فوركلفت (Forklift)؟</span>
+                    <select id="portalForkliftToggle" onchange="togglePortalDocCard('ForkliftLicense')" style="width: 100px; font-size: 14px !important; padding: 6px 10px; min-height: 38px;">
+                      <option value="No">لا</option>
+                      <option value="Yes">نعم</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 3: Document Cards Upload Grid -->
+              <div style="margin-bottom: 28px;">
+                <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 16px;">
+                  <i class="fa-solid fa-cloud-arrow-up" style="color: var(--rassco-turquoise);"></i> 3. رفع وصور المستندات المطلوبة
+                </h4>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                  
+                  <!-- 1. Iqama Upload Card (Required) -->
+                  <div class="doc-card" style="margin-bottom: 0;">
+                    <div class="doc-card-header">
+                      <h4><i class="fa-solid fa-id-card" style="color: var(--rassco-turquoise);"></i> صورة الإقامة (إلزامي)</h4>
+                      <span id="portalIqamaStatusBadge" class="badge-status status-red">لم يتم الرفع</span>
+                    </div>
+                    <div class="doc-preview-box" id="portalIqamaPreviewBox" style="margin-bottom: 12px;">
+                      <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                    </div>
+                    <input type="file" id="portalIqamaFileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handlePortalFileSelect('Iqama', this)">
+                    <button class="btn-primary" onclick="triggerPortalFileSelect('Iqama')" style="width: 100%; justify-content: center; min-height: 44px;">
+                      <i class="fa-solid fa-upload"></i> <span id="portalIqamaBtnText">رفع صورة الإقامة</span>
+                    </button>
+                  </div>
+
+                  <!-- 2. Driving License Upload Card (Optional) -->
+                  <div class="doc-card" id="portalDrivingCard" style="display: none; margin-bottom: 0;">
+                    <div class="doc-card-header">
+                      <h4><i class="fa-solid fa-id-card-clip" style="color: var(--rassco-turquoise);"></i> صورة رخصة القيادة</h4>
+                      <span id="portalDrivingStatusBadge" class="badge-status status-red">لم يتم الرفع</span>
+                    </div>
+                    <div class="doc-preview-box" id="portalDrivingPreviewBox" style="margin-bottom: 12px;">
+                      <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                    </div>
+                    <input type="file" id="portalDrivingFileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handlePortalFileSelect('DrivingLicense', this)">
+                    <button class="btn-primary" onclick="triggerPortalFileSelect('DrivingLicense')" style="width: 100%; justify-content: center; min-height: 44px;">
+                      <i class="fa-solid fa-upload"></i> <span id="portalDrivingBtnText">رفع صورة رخصة القيادة</span>
+                    </button>
+                  </div>
+
+                  <!-- 3. Vehicle License Upload Card (Optional) -->
+                  <div class="doc-card" id="portalVehicleCard" style="display: none; margin-bottom: 0;">
+                    <div class="doc-card-header">
+                      <h4><i class="fa-solid fa-car" style="color: var(--rassco-turquoise);"></i> صورة رخصة السير / استمارة المركبة</h4>
+                      <span id="portalVehicleStatusBadge" class="badge-status status-red">لم يتم الرفع</span>
+                    </div>
+                    <div class="doc-preview-box" id="portalVehiclePreviewBox" style="margin-bottom: 12px;">
+                      <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                    </div>
+                    <input type="file" id="portalVehicleFileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handlePortalFileSelect('VehicleLicense', this)">
+                    <button class="btn-primary" onclick="triggerPortalFileSelect('VehicleLicense')" style="width: 100%; justify-content: center; min-height: 44px;">
+                      <i class="fa-solid fa-upload"></i> <span id="portalVehicleBtnText">رفع صورة رخصة السير</span>
+                    </button>
+                  </div>
+
+                  <!-- 4. Forklift License Upload Card (Optional) -->
+                  <div class="doc-card" id="portalForkliftCard" style="display: none; margin-bottom: 0;">
+                    <div class="doc-card-header">
+                      <h4><i class="fa-solid fa-truck-ramp-box" style="color: var(--rassco-turquoise);"></i> صورة رخصة الفوركلفت</h4>
+                      <span id="portalForkliftStatusBadge" class="badge-status status-red">لم يتم الرفع</span>
+                    </div>
+                    <div class="doc-preview-box" id="portalForkliftPreviewBox" style="margin-bottom: 12px;">
+                      <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                    </div>
+                    <input type="file" id="portalForkliftFileInput" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handlePortalFileSelect('ForkliftLicense', this)">
+                    <button class="btn-primary" onclick="triggerPortalFileSelect('ForkliftLicense')" style="width: 100%; justify-content: center; min-height: 44px;">
+                      <i class="fa-solid fa-upload"></i> <span id="portalForkliftBtnText">رفع صورة رخصة الفوركلفت</span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Submit Final Button -->
+              <button class="btn-primary" id="portalSubmitBtn" onclick="submitEmployeePortal()" style="width: 100%; min-height: 52px; font-size: 17px; font-weight: 900; justify-content: center; background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);">
+                <i class="fa-solid fa-paper-plane"></i> إرسال البيانات والمستندات للمشرف
+              </button>
+            </div>
+
+            <!-- Step 3: Success Screen -->
+            <div id="portalSuccessStep" class="card-box" style="display: none; text-align: center; padding: 36px 24px;">
+              <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.12); color: #10B981; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 18px;">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <h3 style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">تم تحديث بياناتك وإرسال المستندات بنجاح</h3>
+              <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+                تم إرسال التحديث والمستندات المرفوعة إلى المشرف المختص للمراجعة والاعتماد النهائيين.
+              </p>
+
+              <div style="display: inline-block; background: var(--bg-primary); padding: 14px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px;">
+                <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">رقم مرجع الطلب (Submission ID):</span>
+                <strong id="portalSubmissionIdTag" style="font-size: 18px; color: var(--rassco-turquoise-dark); letter-spacing: 1px;">-</strong>
+              </div>
+
+              <div style="font-size: 12px; color: var(--text-muted);">
+                يمكنك إغلاق هذه الصفحة الآن. شكراً لك!
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 1. Supervisor Details Modal ( تفاصيل أداء المشرف الشاملة ) -->
+  <div class="modal-overlay" id="supervisorDrilldownModal">
+    <div class="modal-container" style="max-width: 950px;">
+      <div class="modal-header">
+        <h3 id="supModalTitle"><i class="fa-solid fa-id-card-clip" style="color: var(--rassco-turquoise);"></i> تفاصيل أداء المشرف ومتابعة المسؤولية</h3>
+        <button class="modal-close" onclick="closeSupervisorModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Supervisor Info Banner -->
+        <div style="background: var(--bg-primary); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px; border: 1px solid var(--border-color);" id="supModalBanner">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- KPI Performance Summary -->
+        <div id="supModalKpiGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <h4 style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+          <span><i class="fa-solid fa-users" style="color: var(--rassco-turquoise);"></i> قائمة الموظفين التابعين للمشرف وتتبع المسؤولية</span>
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">(يوضح من بدأ التعبئة، من عدّل، ومن استكمل الملف)</span>
+        </h4>
+
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الرقم</th>
+                <th>اسم الموظف</th>
+                <th>المشروع</th>
+                <th>الحالة</th>
+                <th>الاكتمال</th>
+                <th>البيانات الناقصة</th>
+                <th>بدأ التعبئة</th>
+                <th>آخر تعديل</th>
+                <th>من استكمل الملف</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="supModalEmpsTbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSupervisorModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Remaining Employees Modal ( قسم المتبقي بالأسماء ) -->
+  <div class="modal-overlay" id="supRemainingModal">
+    <div class="modal-container" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 id="supRemainingModalTitle" style="color: #F97316;"><i class="fa-solid fa-list-check"></i> قائمة الموظفين المتبقين والبيانات الناقصة</h3>
+        <button class="modal-close" onclick="closeSupRemainingModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="supRemainingBanner" style="background: rgba(249, 115, 22, 0.08); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid rgba(249, 115, 22, 0.2);">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>رقم الموظف</th>
+                <th>اسم الموظف</th>
+                <th>المشروع</th>
+                <th>الحالة</th>
+                <th>البيانات والوثائق الناقصة بالضبط</th>
+                <th>آخر منفذ</th>
+                <th>آخر تحديث</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="supRemainingTbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSupRemainingModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Completed Employees Modal ( قسم الموظفون المكتملون ) -->
+  <div class="modal-overlay" id="supCompletedModal">
+    <div class="modal-container" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 id="supCompletedModalTitle" style="color: #10B981;"><i class="fa-solid fa-circle-check"></i> قائمة الموظفين المكتملة ملفاتهم بالكامل</h3>
+        <button class="modal-close" onclick="closeSupCompletedModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="supCompletedBanner" style="background: rgba(16, 185, 129, 0.08); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid rgba(16, 185, 129, 0.2);">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>رقم الموظف</th>
+                <th>اسم الموظف</th>
+                <th>المشروع</th>
+                <th>المنطقة</th>
+                <th>من استكمل الملف</th>
+                <th>وقت الاستكمال</th>
+                <th>نسبة الاكتمال</th>
+                <th>فتح الملف</th>
+              </tr>
+            </thead>
+            <tbody id="supCompletedTbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSupCompletedModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Supervisor Activity Log Modal ( قسم تتبع النشاط التفصيلي ) -->
+  <div class="modal-overlay" id="supActivityLogModal">
+    <div class="modal-container" style="max-width: 850px;">
+      <div class="modal-header">
+        <h3 id="supActivityLogTitle"><i class="fa-solid fa-clock-rotate-left" style="color: var(--rassco-turquoise);"></i> سجل نشاط وتعديلات المشرف (Activity Timeline)</h3>
+        <button class="modal-close" onclick="closeSupActivityModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="supActivityBanner" style="background: var(--bg-primary); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-color);">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div id="supActivityTimelineList" style="display: flex; flex-direction: column; gap: 12px; max-height: 420px; overflow-y: auto;">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSupActivityModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User & Scope Management Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal-container" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 id="userModalTitle">إضافة مستخدم جديد وتحديد الصلاحيات</h3>
+        <button class="modal-close" onclick="closeUserModal()">&times;</button>
+      </div>
+
+      <form id="userForm" onsubmit="saveUserForm(event)">
+        <div class="modal-body">
+          <input type="hidden" id="modalUserId">
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>الاسم الكامل:</label>
+            <input type="text" class="form-control" id="modalUserName" required placeholder="مثال: أحمد علي">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>البريد الإلكتروني (إيميل الدخول):</label>
+            <input type="email" class="form-control" id="modalUserEmail" required placeholder="name@rassco.com.sa">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>كلمة المرور:</label>
+            <input type="password" class="form-control" id="modalUserPassword" placeholder="اتركه فارغاً للحفاظ على كلمة المرور الحالية">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>الدور والصلاحية (Role):</label>
+            <select class="form-control" id="modalUserRole" onchange="handleUserRoleModalChange()">
+              <option value="Super Admin">المدير العام (Super Admin - جميع المناطق)</option>
+              <option value="HR Admin">مدير الموارد البشرية (HR Admin)</option>
+              <option value="Regional Supervisor">مشرف منطقة (Regional Supervisor)</option>
+              <option value="Project Manager">مدير مشروع (Project Manager)</option>
+              <option value="Viewer">مستخدم للعرض فقط (Viewer)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>حالة الحساب:</label>
+            <select class="form-control" id="modalUserStatus">
+              <option value="Active">نشط (Active)</option>
+              <option value="Inactive">غير نشط (Inactive)</option>
+              <option value="Suspended">موقوف (Suspended)</option>
+            </select>
+          </div>
+
+          <div id="modalUserAccessScopeGroup" style="background: var(--bg-primary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-top: 14px;">
+            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 12px;"><i class="fa-solid fa-map-location-dot" style="color: var(--rassco-turquoise);"></i> ربط المشرف بالمناطق والمشاريع المصرحة (User_Access Table)</h4>
+            
+            <div class="form-group" style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-weight: 800;">اختر المناطق المسموحة:</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--rassco-turquoise-dark); cursor: pointer;">
+                  <input type="checkbox" id="selectAllUserRegions" onchange="toggleSelectAllUserRegions(this)">
+                  <span>تحديد جميع المناطق</span>
+                </label>
+              </div>
+              <div id="modalUserRegionsCheckboxes" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; background: var(--bg-card); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-weight: 800;">اختر المشاريع المسموحة:</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--rassco-turquoise-dark); cursor: pointer;">
+                  <input type="checkbox" id="selectAllUserProjects" onchange="toggleSelectAllUserProjects(this)">
+                  <span>تحديد جميع المشاريع</span>
+                </label>
+              </div>
+              <div id="modalUserProjectsCheckboxes" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; background: var(--bg-card); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ المستخدم والصلاحيات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manual New Employee Modal -->
+  <div class="modal-overlay" id="employeeModal">
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>إضافة موظف جديد مخصص</h3>
+        <button class="modal-close" onclick="closeNewEmployeeModal()">&times;</button>
+      </div>
+
+      <form id="newEmployeeForm" onsubmit="saveNewEmployeeForm(event)">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>الاسم الكامل:</label>
+            <input type="text" class="form-control" id="newEmpName" required placeholder="اسم الموظف">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>الرقم الوظيفي (EMP):</label>
+            <input type="text" class="form-control" id="newEmpNumber" required placeholder="مثال: 1456">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>رقم الإقامة / الهوية الوطنية (ID):</label>
+            <input type="text" class="form-control" id="newEmpIqama" required placeholder="مثال: 2160564056">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>المنطقة / الموقع (Location):</label>
+            <select class="form-control" id="newEmpRegion">
+              <option value="RUH">المنطقة الوسطى (الرياض) - RUH</option>
+              <option value="JED">المنطقة الغربية (جدة) - JED</option>
+              <option value="KHOBAR">المنطقة الشرقية (الخبر) - KHOBAR</option>
+              <option value="DAM">المنطقة الشرقية (الدمام) - DAM</option>
+              <option value="ABHA">المنطقة الجنوبية (أبها) - ABHA</option>
+              <option value="QAS">منطقة القصيم - QAS</option>
+              <option value="HAIL">المنطقة الشمالية (حائل) - HAIL</option>
+            </select>
+            <p style="font-size: 11px; color: var(--text-dim); margin-top: 4px;"><i class="fa-solid fa-info-circle"></i> المناطق تُحمَّل تلقائياً من بيانات الموظفين المستوردة</p>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>اسم المشروع:</label>
+            <input type="text" class="form-control" id="newEmpProject" required placeholder="مثال: Al Nemer">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeNewEmployeeModal()">إلغاء</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-user-check"></i> إضافة وحفظ الموظف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal: Remove All Employee Data -->
+  <div class="modal-overlay" id="removeEmployeesModal">
+    <div class="modal-container" style="max-width: 520px; border: 2px solid #EF4444;">
+      <div class="modal-header" style="background: rgba(239, 68, 68, 0.08);">
+        <h3 style="color: #EF4444;"><i class="fa-solid fa-triangle-exclamation"></i> تحذير أمني: إزالة كافة بيانات الموظفين</h3>
+        <button class="modal-close" onclick="closeRemoveEmployeesModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: rgba(239, 68, 68, 0.1); color: #DC2626; padding: 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; margin-bottom: 16px;">
+          ⚠️ سيتم إزالة كافة سجلات الموظفين والوثائق والتقدم المحسوب للمشرفين. يتم أولاً إنشاء نسخة احتياطية (Backup) تلقائياً قبل الحذف.<br>
+          ملاحظة: لن يتم حذف إعدادات الشركة، والشعار، والحسابات، والمناطق، والمشاريع.
+        </div>
+
+        <div class="form-group">
+          <label>لتأكيد العملية، يرجى كتابة النص التالي بالضبط:</label>
+          <div style="font-weight: 900; color: #EF4444; margin: 6px 0; font-size: 14px; user-select: all;">حذف جميع بيانات الموظفين</div>
+          <input type="text" class="form-control" id="removeEmployeesConfirmInput" placeholder="اكتب هنا لتأكيد الحذف">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeRemoveEmployeesModal()">إلغاء</button>
+        <button class="btn-primary" onclick="confirmRemoveAllEmployeeData()" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+          <i class="fa-solid fa-trash-can"></i> تأكيد الحذف وإنشاء النسخة الاحتياطية
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal: Full System Reset -->
+  <div class="modal-overlay" id="fullResetModal">
+    <div class="modal-container" style="max-width: 520px; border: 2px solid #DC2626;">
+      <div class="modal-header" style="background: rgba(220, 38, 38, 0.1);">
+        <h3 style="color: #DC2626;"><i class="fa-solid fa-power-off"></i> تحذير حرج: إعادة ضبط النظام بالكامل</h3>
+        <button class="modal-close" onclick="closeFullResetModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color: var(--text-main); font-size: 14px; margin-bottom: 14px;">
+          سيؤدي هذا الخيار إلى إعادة النظام بالكامل إلى حالته المصنعية الأولى وإنشاء نسخة احتياطية أولية.
+        </p>
+
+        <div class="form-group">
+          <label>اكتب النص التالي للتأكيد:</label>
+          <div style="font-weight: 900; color: #DC2626; margin: 6px 0; font-size: 14px; user-select: all;">FULL SYSTEM RESET</div>
+          <input type="text" class="form-control" id="fullResetConfirmInput" placeholder="اكتب FULL SYSTEM RESET">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeFullResetModal()">إلغاء</button>
+        <button class="btn-primary" onclick="confirmFullSystemReset()" style="background: #DC2626;">
+          تأكيد إعادة الضبط الكامل
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supervisor Executive Side Drawer -->
+  <div class="drawer-overlay" id="supervisorDrawer">
+    <div class="drawer-panel">
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="avatar-circle" id="drawerAvatar">AA</div>
+          <div>
+            <div style="font-size: 16px; font-weight: 900; color: var(--text-main);" id="drawerSupName">اسم المشرف</div>
+            <div style="font-size: 12px; color: var(--text-dim);" id="drawerSupEmail">email@rassco.com.sa</div>
+            <div style="font-size: 11px; color: var(--rassco-turquoise-dark); font-weight: 700; margin-top: 2px;" id="drawerSupRole">مشرف منطقة</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeSupervisorDrawer()">&times;</button>
+      </div>
+
+      <!-- Drawer Body -->
+      <div class="drawer-body">
+        <!-- Performance Overview Cards -->
+        <div style="background: var(--bg-primary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--text-muted);">نسبة الإنجاز الإجمالية</span>
+            <span style="font-size: 18px; font-weight: 900; color: var(--rassco-turquoise-dark);" id="drawerCompletionPct">75%</span>
+          </div>
+          <div class="progress-bar-bg" style="height: 10px; border-radius: 5px;">
+            <div class="progress-bar-fill" id="drawerProgressBar" style="width: 75%; border-radius: 5px;"></div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; text-align: center;">
+            <div style="background: var(--bg-card); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-size: 14px; font-weight: 900;" id="drawerAssigned">0</div>
+              <div style="font-size: 10px; color: var(--text-muted);">المسندون</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-size: 14px; font-weight: 900; color: #10B981;" id="drawerCompleted">0</div>
+              <div style="font-size: 10px; color: var(--text-muted);">مكتمل</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-size: 14px; font-weight: 900; color: #F59E0B;" id="drawerInProgress">0</div>
+              <div style="font-size: 10px; color: var(--text-muted);">جاري</div>
+            </div>
+            <div style="background: var(--bg-card); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <div style="font-size: 14px; font-weight: 900; color: #EF4444;" id="drawerRemaining">0</div>
+              <div style="font-size: 10px; color: var(--text-muted);">المتبقي</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drawer Navigation Tabs -->
+        <div class="drawer-tabs">
+          <button class="drawer-tab-btn active" id="tabBtnRemaining" onclick="switchDrawerTab('remaining')">
+            <i class="fa-solid fa-list-check"></i> المتبقي (<span id="drawerTabRemainingCount">0</span>)
+          </button>
+          <button class="drawer-tab-btn" id="tabBtnCompleted" onclick="switchDrawerTab('completed')">
+            <i class="fa-solid fa-circle-check"></i> المكتملون (<span id="drawerTabCompletedCount">0</span>)
+          </button>
+          <button class="drawer-tab-btn" id="tabBtnActivity" onclick="switchDrawerTab('activity')">
+            <i class="fa-solid fa-clock-rotate-left"></i> سجل النشاط
+          </button>
+        </div>
+
+        <!-- Tab 1: Remaining Employees -->
+        <div id="drawerTabRemainingContent">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>المشروع</th>
+                  <th>البيانات الناقصة</th>
+                  <th>إجراء</th>
+                </tr>
+              </thead>
+              <tbody id="drawerRemainingTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2: Completed Employees -->
+        <div id="drawerTabCompletedContent" style="display: none;">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>الموظف</th>
+                  <th>المشروع</th>
+                  <th>من استكمل الملف</th>
+                  <th>وقت الاستكمال</th>
+                </tr>
+              </thead>
+              <tbody id="drawerCompletedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Activity Timeline -->
+        <div id="drawerTabActivityContent" style="display: none;">
+          <div id="drawerActivityTimelineList" style="display: flex; flex-direction: column;"></div>
+        </div>
+
+      </div>
+    </div>
+  <!-- Mobile Filter Bottom Sheet Drawer -->
+  <div class="mobile-filter-overlay" id="mobileFilterDrawerOverlay" onclick="closeMobileFilterDrawer()">
+    <div class="mobile-filter-panel" onclick="event.stopPropagation()">
+      <div class="mobile-filter-header">
+        <h4><i class="fa-solid fa-sliders" style="color: var(--rassco-turquoise);"></i> فلاتر خيارات العرض</h4>
+        <button class="modal-close" onclick="closeMobileFilterDrawer()">&times;</button>
+      </div>
+      <div class="mobile-filter-body">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-weight: 800; font-size: 13px; margin-bottom: 6px; display: block;">المنطقة / الموقع:</label>
+          <select class="form-control" id="mobileRegionFilter" onchange="handleMobileRegionChange()">
+            <option value="ALL">جميع المناطق</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-weight: 800; font-size: 13px; margin-bottom: 6px; display: block;">المشروع:</label>
+          <select class="form-control" id="mobileProjectFilter" onchange="handleMobileProjectChange()">
+            <option value="ALL">جميع المشاريع</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-weight: 800; font-size: 13px; margin-bottom: 6px; display: block;">حالة التعبئة والملف:</label>
+          <select class="form-control" id="mobileFillingFilter" onchange="handleMobileFillingChange()">
+            <option value="ALL">جميع الحالات</option>
+            <option value="Completed">مكتمل بالكامل (Completed)</option>
+            <option value="In Progress">جاري التعبئة (In Progress)</option>
+            <option value="Needs Review">يحتاج مراجعة (Needs Review)</option>
+            <option value="Not Started">لم يبدأ (Not Started)</option>
+          </select>
+        </div>
+      </div>
+      <div class="mobile-filter-footer">
+        <button class="btn-secondary" onclick="resetFilters(); closeMobileFilterDrawer();" style="flex: 1;">إعادة تعيين</button>
+        <button class="btn-primary" onclick="closeMobileFilterDrawer();" style="flex: 2; justify-content: center;">تطبيق الفلاتر</button>
+      </div>
+    </div>
+  <!-- Modal: Portal Link Generator Modal -->
+  <div class="modal-overlay" id="portalLinkModal">
+    <div class="modal-container" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-link" style="color: var(--rassco-turquoise);"></i> رابط استكمال بيانات الموظف (Secure Portal Link)</h3>
+        <button class="modal-close" onclick="closePortalLinkModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          قم بنسخ هذا الرابط المخصص وإرساله للموظف عبر الواتساب أو الرسائل لاستكمال بياناته ورفع المستندات بأمان:
+        </p>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="font-weight: 700; font-size: 12px;">الرابط الخاص بالموظف:</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" class="form-control" id="generatedPortalUrlInput" readonly style="font-size: 13px; font-weight: 700; background: var(--bg-primary);">
+            <button class="btn-primary" onclick="copyGeneratedPortalLink()" style="white-space: nowrap;">
+              <i class="fa-solid fa-copy"></i> نسخ الرابط
+            </button>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-primary); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
+          <div><strong style="color: var(--text-muted);">الموظف:</strong> <span id="linkModalEmpName" style="font-weight: 700;">-</span></div>
+          <div><strong style="color: var(--text-muted);">رمز الدعوة:</strong> <code id="linkModalToken" style="color: var(--rassco-turquoise); font-weight: 800;">-</code></div>
+          <div><strong style="color: var(--text-muted);">تاريخ الإنشاء:</strong> <span id="linkModalCreatedAt">-</span></div>
+          <div><strong style="color: var(--text-muted);">تاريخ الانتهاء:</strong> <span id="linkModalExpiresAt">بعد 7 أيام</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closePortalLinkModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Request Re-upload Document Modal -->
+  <div class="modal-overlay" id="requestReuploadModal">
+    <div class="modal-container" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-rotate-left" style="color: #EF4444;"></i> طلب إعادة رفع وثيقة للموظف</h3>
+        <button class="modal-close" onclick="closeReuploadModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="font-weight: 700; font-size: 13px;">الوثيقة المطلوب إعادة رفعها:</label>
+          <select class="form-control" id="reuploadTargetDoc">
+            <option value="Iqama">صورة الإقامة (Iqama)</option>
+            <option value="DrivingLicense">رخصة القيادة (Driving License)</option>
+            <option value="VehicleLicense">استمارة المركبة (Vehicle Registration)</option>
+            <option value="ForkliftLicense">رخصة الفوركلفت (Forklift License)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 13px;">سبب طلب إعادة الرفع (يظهر للموظف):</label>
+          <textarea class="form-control" id="reuploadReasonInput" rows="3" placeholder="مثال: الصورة المرفوعة غير واضحة أو مقصوصة الأطراف..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeReuploadModal()">إلغاء</button>
+        <button class="btn-primary" onclick="submitReuploadRequest()" style="background: #EF4444; border-color: #EF4444;">
+          <i class="fa-solid fa-paper-plane"></i> إرسال الطلب للموظف
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

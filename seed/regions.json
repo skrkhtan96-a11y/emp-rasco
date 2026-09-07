@@ -1,0 +1,38 @@
+[
+  {
+    "Region_ID": "REG-01",
+    "Region_Name_AR": "المنطقة الوسطى (الرياض)",
+    "Region_Name_EN": "Central Region (Riyadh)",
+    "Status": "Active"
+  },
+  {
+    "Region_ID": "REG-02",
+    "Region_Name_AR": "المنطقة الغربية (جدة ومكة والمدينة)",
+    "Region_Name_EN": "Western Region (Jeddah & Madinah)",
+    "Status": "Active"
+  },
+  {
+    "Region_ID": "REG-03",
+    "Region_Name_AR": "المنطقة الشرقية (الخبر والدمام)",
+    "Region_Name_EN": "Eastern Region (Khobar & Dammam)",
+    "Status": "Active"
+  },
+  {
+    "Region_ID": "REG-04",
+    "Region_Name_AR": "المنطقة الجنوبية (أبها وعسير وجازان)",
+    "Region_Name_EN": "Southern Region (Abha & Jizan)",
+    "Status": "Active"
+  },
+  {
+    "Region_ID": "REG-05",
+    "Region_Name_AR": "منطقة القصيم (بريدة وعنيزة)",
+    "Region_Name_EN": "Qassim Region (Buraidah)",
+    "Status": "Active"
+  },
+  {
+    "Region_ID": "REG-06",
+    "Region_Name_AR": "المنطقة الشمالية (حائل وتبوك والجوف)",
+    "Region_Name_EN": "Northern Region (Hail & Tabuk)",
+    "Status": "Active"
+  }
+]

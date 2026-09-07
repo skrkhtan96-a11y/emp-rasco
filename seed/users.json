@@ -1,0 +1,46 @@
+[
+  {
+    "User_ID": "USR-001",
+    "Full_Name": "المدير العام (RASSCO Admin)",
+    "Email": "admin@rassco.com.sa",
+    "Password_Hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "Role": "Super Admin",
+    "Status": "Active",
+    "Last_Login": "2026-09-07T14:06:45.289Z",
+    "Last_Activity": "2026-09-07T14:06:45.289Z",
+    "Created_At": "2026-09-07T14:06:45.289Z"
+  },
+  {
+    "User_ID": "USR-002",
+    "Full_Name": "مدير الموارد البشرية (HR Manager)",
+    "Email": "hr@rassco.com.sa",
+    "Password_Hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "Role": "HR Admin",
+    "Status": "Active",
+    "Last_Login": "2026-09-07T14:06:45.289Z",
+    "Last_Activity": "2026-09-07T14:06:45.289Z",
+    "Created_At": "2026-09-07T14:06:45.289Z"
+  },
+  {
+    "User_ID": "USR-003",
+    "Full_Name": "مشرف منطقة القصيم (أحمد علي)",
+    "Email": "sup.qassim@rassco.com.sa",
+    "Password_Hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "Role": "Regional Supervisor",
+    "Status": "Active",
+    "Last_Login": "2026-09-07T14:06:45.289Z",
+    "Last_Activity": "2026-09-07T14:06:45.289Z",
+    "Created_At": "2026-09-07T14:06:45.289Z"
+  },
+  {
+    "User_ID": "USR-004",
+    "Full_Name": "مدير مشروع النمر (محمد صالح)",
+    "Email": "pm.nemer@rassco.com.sa",
+    "Password_Hash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+    "Role": "Project Manager",
+    "Status": "Active",
+    "Last_Login": "2026-09-07T14:06:45.289Z",
+    "Last_Activity": "2026-09-07T14:06:45.289Z",
+    "Created_At": "2026-09-07T14:06:45.289Z"
+  }
+]

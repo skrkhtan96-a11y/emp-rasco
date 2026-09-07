@@ -1,0 +1,3741 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة وثائق الموظفين | RASSCO - شركة راس السعودية المحدودة</title>
+  <style>
+/* ==========================================================================
+   RASSCO Employee Documents Management System - Ultra-Premium Corporate Design System
+   Company: RAS SAUDI COMPANY LTD (شركة راس السعودية المحدودة)
+   Primary Identity: RASSCO Emerald Turquoise (#14B8A6 / #0D9488) & Slate Clean Corporate
+   Language: Arabic RTL
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+:root {
+  --font-main: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* RASSCO Corporate Palette */
+  --rassco-turquoise: #14B8A6;
+  --rassco-turquoise-dark: #0D9488;
+  --rassco-turquoise-deep: #0F766E;
+  --rassco-turquoise-light: #CCFBF1;
+  --rassco-turquoise-mint: #F0FDFA;
+  --rassco-turquoise-glow: rgba(20, 184, 166, 0.25);
+
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --border-color: #E2E8F0;
+  --border-color-focus: #14B8A6;
+
+  --accent-primary: var(--rassco-turquoise);
+  --accent-primary-hover: var(--rassco-turquoise-dark);
+
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-dim: #94A3B8;
+
+  /* Status Colors */
+  --status-expired: #EF4444;
+  --status-critical: #F97316;
+  --status-warning: #F59E0B;
+  --status-valid: #10B981;
+  --status-missing: #64748B;
+
+  --sidebar-width: 280px;
+  --header-height: 74px;
+  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-main: 0 10px 30px -5px rgba(15, 23, 42, 0.05), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+  --shadow-hover: 0 20px 35px -10px rgba(20, 184, 166, 0.18);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --bg-primary: #0B132B;
+  --bg-secondary: #1C2541;
+  --bg-card: #1C2541;
+  --bg-card-hover: #2A365C;
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  --text-main: #F8FAFC;
+  --text-muted: #CBD5E1;
+  --text-dim: #64748B;
+
+  --shadow-main: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 35px -10px rgba(20, 184, 166, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+}
+
+body {
+  direction: rtl;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   AUTHENTICATION / LOGIN PAGE - EXECUTIVE DESIGN
+   ========================================================================== */
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, #1E293B 0%, #0F172A 70%, #090D16 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Background Ambient Glow Orbs */
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.25) 0%, rgba(20, 184, 166, 0) 70%);
+  top: 15%;
+  right: 25%;
+  pointer-events: none;
+  filter: blur(40px);
+  animation: pulseGlow 8s infinite alternate;
+}
+
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0) 70%);
+  bottom: 15%;
+  left: 25%;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+.login-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 460px;
+  padding: 44px 40px;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.45), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  z-index: 10;
+  animation: cardAppear 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardAppear {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 12px;
+}
+
+.login-logo {
+  max-width: 230px;
+  height: auto;
+  max-height: 75px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+  margin-bottom: 32px;
+}
+
+.login-form-group {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.login-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  right: 16px;
+  color: #94A3B8;
+  font-size: 16px;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.input-with-icon input,
+.input-with-icon select {
+  width: 100%;
+  padding: 13px 46px 13px 16px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: var(--radius-md);
+  color: #0F172A;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+}
+
+.input-with-icon input:focus,
+.input-with-icon select:focus {
+  background: #FFFFFF;
+  border-color: var(--rassco-turquoise);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18);
+}
+
+.input-with-icon input:focus + .input-icon,
+.input-with-icon select:focus + .input-icon {
+  color: var(--rassco-turquoise-dark);
+}
+
+.select-arrow {
+  position: absolute;
+  left: 16px;
+  color: #94A3B8;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.btn-login {
+  width: 100%;
+  background: linear-gradient(135deg, var(--rassco-turquoise) 0%, var(--rassco-turquoise-dark) 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  box-shadow: 0 8px 20px rgba(20, 184, 166, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(20, 184, 166, 0.45);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+.login-footer {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   APP WORKSPACE & NAVIGATION
+   ========================================================================== */
+#app {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-header {
+  height: 90px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-logo {
+  max-width: 190px;
+  max-height: 55px;
+  object-fit: contain;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.nav-item a:hover {
+  background: var(--rassco-turquoise-mint);
+  color: var(--rassco-turquoise-dark);
+}
+
+.nav-item.active a {
+  background: linear-gradient(135deg, var(--rassco-turquoise), var(--rassco-turquoise-dark));
+  color: #FFFFFF;
+  box-shadow: 0 6px 18px var(--rassco-turquoise-glow);
+}
+
+.nav-icon {
+  font-size: 17px;
+  width: 22px;
+  text-align: center;
+}
+
+.badge-count {
+  margin-right: auto;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--status-expired);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sidebar-footer {
+  padding: 18px 14px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+/* Main Workspace */
+.main-content {
+  margin-right: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Sticky Top Header */
+.top-header {
+  height: var(--header-height);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+[data-theme="dark"] .top-header {
+  background: rgba(28, 37, 65, 0.92);
+}
+
+.header-title h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-box {
+  position: relative;
+  width: 360px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 42px 10px 18px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+  background: var(--bg-secondary);
+  border-color: var(--rassco-turquoise);
+  box-shadow: 0 0 0 3.5px var(--rassco-turquoise-glow);
+}
+
+.search-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+}
+
+.btn-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 17px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: var(--bg-card-hover);
+  color: var(--rassco-turquoise-dark);
+  transform: translateY(-2px);
+}
+
+/* Page Container */
+.page-container {
+  padding: 32px;
+  flex: 1;
+}
+
+.view-page {
+  display: none;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.view-page.active {
+  display: block;
+}
+
+/* KPI Cards Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: var(--shadow-main);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--rassco-turquoise);
+  box-shadow: var(--shadow-hover);
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.kpi-turquoise { background: var(--rassco-turquoise-light); color: var(--rassco-turquoise-dark); }
+.kpi-green { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+.kpi-red { background: rgba(239, 68, 68, 0.12); color: #EF4444; }
+.kpi-orange { background: rgba(249, 115, 22, 0.12); color: #F97316; }
+.kpi-yellow { background: rgba(245, 158, 11, 0.12); color: #F59E0B; }
+.kpi-purple { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; }
+
+.kpi-info h3 {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.kpi-info p {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* Card Box */
+.card-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-main);
+  margin-bottom: 28px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.card-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+/* Filter Bar & Cascading Selectors */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-primary);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.filter-select {
+  padding: 9px 16px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  border-color: var(--rassco-turquoise);
+}
+
+/* RASSCO Primary Button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--rassco-turquoise) 0%, var(--rassco-turquoise-dark) 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 11px 24px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px var(--rassco-turquoise-glow);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--rassco-turquoise-glow);
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+}
+
+/* Data Table */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.data-table th {
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  font-weight: 800;
+  font-size: 13px;
+  text-align: right;
+  padding: 16px 18px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.data-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.badge-expired { background: rgba(239, 68, 68, 0.12); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.badge-critical { background: rgba(249, 115, 22, 0.12); color: #F97316; border: 1px solid rgba(249, 115, 22, 0.3); }
+.badge-expiring { background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-valid { background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-missing { background: rgba(100, 116, 139, 0.12); color: #64748B; border: 1px solid rgba(100, 116, 139, 0.3); }
+.badge-na { background: rgba(148, 163, 184, 0.12); color: #64748B; }
+
+/* Progress Bar */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 140px;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rassco-turquoise), #10B981);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 800;
+  width: 36px;
+}
+
+/* Dedicated Employee Details View */
+.profile-banner {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-xl);
+  padding: 28px 36px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-main);
+}
+
+.profile-title h3 {
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  letter-spacing: -0.4px;
+}
+
+.doc-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.doc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-main);
+}
+
+.doc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.doc-card-header h4 {
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.doc-preview-box {
+  width: 100%;
+  height: 190px;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.doc-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Toast Container */
+.toast-container {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toast {
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  border-right: 5px solid var(--rassco-turquoise);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: toastSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Excel Import Box & Dropzone */
+.excel-import-box {
+  width: 100%;
+  padding: 36px 24px;
+  background: var(--bg-primary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.excel-import-box:hover {
+  border-color: var(--rassco-turquoise);
+  background: var(--rassco-turquoise-mint);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 11px 24px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Modal Overlay & Containers */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: var(--text-main);
+}
+
+.modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 18px 28px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--bg-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--rassco-turquoise);
+  box-shadow: 0 0 0 3px var(--rassco-turquoise-glow);
+}
+
+
+</style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- RASSCO Executive Login Screen -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo-container">
+        <img src="assets/rassco_logo.png" alt="RASSCO Logo" class="login-logo">
+      </div>
+      
+      <h2 class="login-title">نظام إدارة وثائق الموظفين</h2>
+      <p class="login-subtitle">شركة راس السعودية المحدودة (RAS SAUDI COMPANY LTD)</p>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        
+        <div class="login-form-group">
+          <label>اسم المستخدم / البريد الإلكتروني:</label>
+          <div class="input-with-icon">
+            <input type="email" id="loginEmail" value="admin@rassco.com.sa" required placeholder="name@rassco.com.sa">
+            <i class="fa-solid fa-envelope input-icon"></i>
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label>كلمة المرور:</label>
+          <div class="input-with-icon">
+            <input type="password" value="••••••••" required placeholder="كلمة المرور">
+            <i class="fa-solid fa-lock input-icon"></i>
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label>الدور والصلاحية (محاكاة التجربة):</label>
+          <div class="input-with-icon">
+            <select id="loginRole">
+              <option value="Super Admin">المدير العام (Super Admin - جميع المناطق)</option>
+              <option value="HR Admin">مدير الموارد البشرية (HR Admin)</option>
+              <option value="Regional Supervisor">مشرف المنطقة (Regional Supervisor - القصيم)</option>
+              <option value="Project Manager">مدير مشروع (Project Manager - النمر)</option>
+              <option value="Viewer">مستخدم للعرض فقط (Viewer)</option>
+            </select>
+            <i class="fa-solid fa-user-shield input-icon"></i>
+            <i class="fa-solid fa-chevron-down select-arrow"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول بالنظام
+        </button>
+
+      </form>
+
+      <div class="login-footer">
+        شركة راس السعودية المحدودة © 2026 - جميع الحقوق محفوظة
+      </div>
+    </div>
+  </div>
+
+  <!-- App Workspace -->
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/rassco_logo.png" alt="RASSCO Logo" class="sidebar-logo">
+      </div>
+      
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="dashboard">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> لوحة التحكم</a>
+        </li>
+        <li class="nav-item" data-view="supervisors">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-bars-progress"></i></span> متابعة إنجاز المشرفين</a>
+        </li>
+        <li class="nav-item" data-view="employees">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> الموظفون المسندون</a>
+        </li>
+        <li class="nav-item" data-view="data-management">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-database" style="color: #10B981;"></i></span> إدارة البيانات والملفات (Excel)</a>
+        </li>
+        <li class="nav-item" data-view="documents">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-folder-open"></i></span> جميع المستندات</a>
+        </li>
+        <li class="nav-item" data-view="expiring">
+          <a href="#">
+            <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> 
+            الوثائق القريبة من الانتهاء
+            <span class="badge-count" id="expiringBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="expired">
+          <a href="#">
+            <span class="nav-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> 
+            الوثائق المنتهية
+            <span class="badge-count" id="expiredBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="missing">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-file-circle-xmark"></i></span> المستندات الناقصة</a>
+        </li>
+        <li class="nav-item" data-view="projects">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-diagram-project"></i></span> المشاريع</a>
+        </li>
+        <li class="nav-item" data-view="users">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-user-shield"></i></span> المستخدمون والصلاحيات</a>
+        </li>
+        <li class="nav-item" data-view="reports">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-file-invoice"></i></span> التقارير والتصدير</a>
+        </li>
+        <li class="nav-item" data-view="settings">
+          <a href="#"><span class="nav-icon"><i class="fa-solid fa-gears"></i></span> الإعدادات</a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="btn-secondary" onclick="handleLogout()" style="width: 100%; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> تسجيل الخروج
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Sticky Top Header -->
+      <header class="top-header">
+        <div class="header-title">
+          <h2 id="pageTitle">لوحة التحكم المركزية</h2>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="globalSearchInput" placeholder="بحث باسم الموظف، الرقم، الإقامة، المنطقة، المشرف...">
+          </div>
+          <button class="btn-icon" id="themeToggle" title="تبديل المظهر"><i class="fa-solid fa-moon"></i></button>
+        </div>
+      </header>
+
+      <!-- Page Container -->
+      <div class="page-container">
+        
+        <!-- View 1: Dashboard -->
+        <section id="view-dashboard" class="view-page active">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-turquoise"><i class="fa-solid fa-users"></i></div>
+              <div class="kpi-info">
+                <h3 id="statTotalEmps">1,529</h3>
+                <p>إجمالي الموظفين</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-green"><i class="fa-solid fa-circle-check"></i></div>
+              <div class="kpi-info">
+                <h3 id="statActiveEmps">1,529</h3>
+                <p>الموظفون النشطون</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-purple"><i class="fa-solid fa-map-location-dot"></i></div>
+              <div class="kpi-info">
+                <h3 id="statRegions">6</h3>
+                <p>إجمالي المناطق</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-red"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+              <div class="kpi-info">
+                <h3 id="statExpiredIqama">0</h3>
+                <p>إقامات منتهية</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-orange"><i class="fa-solid fa-clock"></i></div>
+              <div class="kpi-info">
+                <h3 id="statExpiringSoon">0</h3>
+                <p>وثائق تنتهي خلال 30 يوم</p>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon kpi-yellow"><i class="fa-solid fa-folder-minus"></i></div>
+              <div class="kpi-info">
+                <h3 id="statMissingDocs">1,529</h3>
+                <p>ملفات تحتاج استكمال</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cascading Filter Bar -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3>متابعة الوثائق المباشرة حسب المنطقة والمشروع</h3>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="switchView('data-management')" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-file-excel"></i> استيراد بيانات الموظفين من Excel</button>
+                <button class="btn-secondary" onclick="openNewEmployeeModal()"><i class="fa-solid fa-plus"></i> إضافة موظف جديد</button>
+              </div>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">المنطقة:</span>
+                <select class="filter-select" id="dashRegionFilter" onchange="handleRegionChange('dash')">
+                  <option value="ALL">جميع المناطق (6)</option>
+                </select>
+
+                <span class="filter-label">المشروع:</span>
+                <select class="filter-select" id="dashProjectFilter" onchange="handleProjectChange('dash')">
+                  <option value="ALL">جميع المشاريع</option>
+                </select>
+
+                <span class="filter-label">حالة التعبئة:</span>
+                <select class="filter-select" id="dashFillingFilter" onchange="renderCurrentView()">
+                  <option value="ALL">جميع الحالات</option>
+                  <option value="Not Started">لم يبدأ (Not Started)</option>
+                  <option value="In Progress">جاري التعبئة (In Progress)</option>
+                  <option value="Completed">مكتمل بالكامل (Completed)</option>
+                  <option value="Needs Review">يحتاج مراجعة (Needs Review)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>حالة التعبئة</th>
+                    <th>حالة الإقامة</th>
+                    <th>حالة الجواز</th>
+                    <th>نسبة الاكتمال</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 2: Supervisor Performance Monitoring Dashboard (Phase 2 Master Requirement) -->
+        <section id="view-supervisors" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-bars-progress" style="color: var(--rassco-turquoise);"></i> متابعة إنجاز المشرفين ونسب التقدم اللحظية</h3>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">المنطقة:</span>
+                <select class="filter-select" id="supRegionFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="ALL">جميع المناطق (6)</option>
+                </select>
+
+                <span class="filter-label">الترتيب حسب:</span>
+                <select class="filter-select" id="supSortFilter" onchange="renderSupervisorPerformanceView()">
+                  <option value="Highest">الأعلى إنجازاً</option>
+                  <option value="Lowest">الأقل إنجازاً</option>
+                  <option value="MostRemaining">الأكثر متبقياً</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>المشرف</th>
+                    <th>المنطقة المصرحة</th>
+                    <th>المشاريع التابعة</th>
+                    <th>المسندون</th>
+                    <th>مكتمل</th>
+                    <th>جاري</th>
+                    <th>لم يبدأ</th>
+                    <th>المتبقي</th>
+                    <th>نسبة الإنجاز</th>
+                    <th>آخر نشاط إنتاجي</th>
+                    <th>التفاصيل والمتبقي</th>
+                  </tr>
+                </thead>
+                <tbody id="supervisorsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 3: Employees List -->
+        <section id="view-employees" class="view-page">
+          <div class="card-box">
+            <div class="filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">المنطقة:</span>
+                <select class="filter-select" id="empRegionFilter" onchange="handleRegionChange('emp')">
+                  <option value="ALL">جميع المناطق (6)</option>
+                </select>
+
+                <span class="filter-label">المشروع:</span>
+                <select class="filter-select" id="empProjectFilter" onchange="handleProjectChange('emp')">
+                  <option value="ALL">جميع المشاريع</option>
+                </select>
+
+                <span class="filter-label">حالة التعبئة:</span>
+                <select class="filter-select" id="empFillingFilter" onchange="renderCurrentView()">
+                  <option value="ALL">جميع الحالات</option>
+                  <option value="Not Started">لم يبدأ (Not Started)</option>
+                  <option value="In Progress">جاري التعبئة (In Progress)</option>
+                  <option value="Completed">مكتمل بالكامل (Completed)</option>
+                  <option value="Needs Review">يحتاج مراجعة (Needs Review)</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" onclick="switchView('data-management')" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-file-excel"></i> استيراد Excel</button>
+                <button class="btn-secondary" onclick="openNewEmployeeModal()"><i class="fa-solid fa-user-plus"></i> إضافة موظف</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الرقم الوظيفي</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>حالة التعبئة</th>
+                    <th>الإقامة</th>
+                    <th>الجواز</th>
+                    <th>آخر تحديث بواسطة</th>
+                    <th>اكتمال الملف</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTbody"></tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <div class="pagination-info" id="paginationInfo">عرض 1 - 15 من 1,529</div>
+              <div class="pagination-buttons" id="paginationButtons"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 4: Dedicated Employee Details Page View -->
+        <section id="view-employee-details" class="view-page">
+          <div class="profile-banner">
+            <div class="profile-title">
+              <button class="btn-secondary" onclick="switchView(state.previousView || 'employees')" style="margin-bottom: 12px; background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); color: #FFF;">
+                <i class="fa-solid fa-arrow-right"></i> العودة للقائمة
+              </button>
+              <h3 id="detEmpName">اسم الموظف</h3>
+              <p style="color: #94A3B8;" id="detEmpSubtitle">الرقم الوظيفي: 10001 | المنطقة الوسطى (الرياض) | مشروع النمر</p>
+              <div style="margin-top: 8px; font-size: 13px;" id="detEmpAuditorInfo">
+                <i class="fa-solid fa-user-pen"></i> تم الإنشاء أولاً بواسطة: System Migration | آخر تحديث بواسطة: المشرف
+              </div>
+            </div>
+            <div class="profile-badges">
+              <div class="progress-container" style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px;">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="detCompletionFill" style="width: 25%"></div></div>
+                <span class="progress-text" id="detCompletionText" style="color: #FFF;">25%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- High Speed Workflow Controls -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 16px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; font-size: 14px;">
+              <span id="detFillingStatusBadge"></span>
+            </div>
+            <button class="btn-primary" onclick="saveAndOpenNextIncomplete()" style="background: linear-gradient(135deg, #10B981, #059669);">
+              <i class="fa-solid fa-forward-step"></i> حفظ وفتح الموظف التالي غير المكتمل
+            </button>
+          </div>
+
+          <!-- Document Cards Grid -->
+          <div class="doc-section-grid">
+            
+            <!-- Iqama Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-id-card" style="color: var(--rassco-turquoise);"></i> الإقامة النظامية</h4>
+                <span id="detIqamaBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>رقم الإقامة:</label>
+                <input type="text" class="form-control" id="detIqamaNo">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تاريخ الانتهاء:</label>
+                <input type="date" class="form-control" id="detIqamaExp">
+              </div>
+
+              <!-- Persistent Image Preview -->
+              <div class="doc-preview-box" id="detIqamaPreviewBox">
+                <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+              </div>
+
+              <div class="form-group">
+                <label>تحديث/استبدال صورة الإقامة (Google Drive):</label>
+                <input type="file" class="form-control" id="detIqamaFile" accept=".jpg,.jpeg,.png,.pdf">
+              </div>
+              <button class="btn-primary" onclick="uploadSpecificDoc('Iqama')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> رفع وصيانة الإقامة إلى Google Drive
+              </button>
+            </div>
+
+            <!-- Passport Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-passport" style="color: var(--rassco-turquoise);"></i> جواز السفر</h4>
+                <span id="detPassportBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>رقم الجواز:</label>
+                <input type="text" class="form-control" id="detPassNo">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تاريخ الانتهاء:</label>
+                <input type="date" class="form-control" id="detPassExp">
+              </div>
+
+              <div class="doc-preview-box" id="detPassPreviewBox">
+                <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-file-pdf"></i> لا يوجد مستند جواز مرفوع</span>
+              </div>
+
+              <div class="form-group">
+                <label>تحديث/استبدال الجواز (Google Drive):</label>
+                <input type="file" class="form-control" id="detPassFile" accept=".jpg,.jpeg,.png,.pdf">
+              </div>
+              <button class="btn-primary" onclick="uploadSpecificDoc('Passport')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> رفع وصيانة الجواز إلى Google Drive
+              </button>
+            </div>
+
+            <!-- Driving License Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-id-card-clip" style="color: var(--rassco-turquoise);"></i> رخصة القيادة</h4>
+                <span id="detDrvBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تتوفر رخصة قيادة؟</label>
+                <div class="toggle-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="detDrvAvail" onchange="toggleDetLicenseFields()">
+                    <span class="slider"></span>
+                  </label>
+                  <span id="detDrvAvailLabel">لا يوجد</span>
+                </div>
+              </div>
+
+              <div id="detDrvFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>رقم الرخصة:</label>
+                  <input type="text" class="form-control" id="detDrvNo">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>تاريخ الانتهاء:</label>
+                  <input type="date" class="form-control" id="detDrvExp">
+                </div>
+                <div class="doc-preview-box" id="detDrvPreviewBox">
+                  <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                </div>
+                <div class="form-group">
+                  <label>تحديث رخصة القيادة (Google Drive):</label>
+                  <input type="file" class="form-control" id="detDrvFile" accept=".jpg,.jpeg,.png,.pdf">
+                </div>
+                <button class="btn-primary" onclick="uploadSpecificDoc('Driving License')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع رخصة القيادة إلى Google Drive
+                </button>
+              </div>
+            </div>
+
+            <!-- Forklift License Card -->
+            <div class="doc-card">
+              <div class="doc-card-header">
+                <h4><i class="fa-solid fa-truck-ramp-box" style="color: var(--rassco-turquoise);"></i> رخصة الفوركلفت</h4>
+                <span id="detFlBadge"></span>
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label>تتوفر رخصة فوركلفت؟</label>
+                <div class="toggle-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="detFlAvail" onchange="toggleDetLicenseFields()">
+                    <span class="slider"></span>
+                  </label>
+                  <span id="detFlAvailLabel">لا يوجد</span>
+                </div>
+              </div>
+
+              <div id="detFlFields" style="display: none;">
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>رقم الرخصة:</label>
+                  <input type="text" class="form-control" id="detFlNo">
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label>تاريخ الانتهاء:</label>
+                  <input type="date" class="form-control" id="detFlExp">
+                </div>
+                <div class="doc-preview-box" id="detFlPreviewBox">
+                  <span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة</span>
+                </div>
+                <div class="form-group">
+                  <label>تحديث رخصة الفوركلفت (Google Drive):</label>
+                  <input type="file" class="form-control" id="detFlFile" accept=".jpg,.jpeg,.png,.pdf">
+                </div>
+                <button class="btn-primary" onclick="uploadSpecificDoc('Forklift License')" style="width: 100%; margin-top: 12px; justify-content: center;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> رفع رخصة الفوركلفت إلى Google Drive
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Productive Activity History Timeline -->
+          <div class="card-box" style="margin-top: 24px;">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-clock-rotate-left"></i> سجل نشاط وتعديلات الموظف (Activity Timeline)</h3>
+            </div>
+            <div id="detActivityTimeline" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- View 5: Documents -->
+        <section id="view-documents" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>سجل الوثائق والمستندات المرفوعة</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>اسم الموظف</th>
+                    <th>نوع الوثيقة</th>
+                    <th>رقم الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الحالة</th>
+                    <th>المستند</th>
+                    <th>تاريخ الرفع</th>
+                  </tr>
+                </thead>
+                <tbody id="documentsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 6: Expiring Soon -->
+        <section id="view-expiring" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>الوثائق القريبة من الانتهاء (خلال 60 يوماً)</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>نوع الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الأيام المتبقية</th>
+                    <th>الحالة</th>
+                    <th>الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="expiringTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 7: Expired Documents -->
+        <section id="view-expired" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3 style="color: var(--status-expired);"><i class="fa-solid fa-triangle-exclamation"></i> الوثائق المنتهية بالفعل</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>نوع الوثيقة</th>
+                    <th>تاريخ الانتهاء</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="expiredTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 8: Missing Documents -->
+        <section id="view-missing" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>الموظفون ذوو الوثائق الناقصة</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>رقم الموظف</th>
+                    <th>اسم الموظف</th>
+                    <th>المنطقة</th>
+                    <th>المشروع</th>
+                    <th>المستندات الناقصة</th>
+                    <th>نسبة الاكتمال</th>
+                    <th>إجراء استكمال</th>
+                  </tr>
+                </thead>
+                <tbody id="missingTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 9: Projects -->
+        <section id="view-projects" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>قائمة المشاريع المعتمدة حسب المناطق (45 مشروعاً)</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>معرف المشروع</th>
+                    <th>اسم المشروع</th>
+                    <th>المنطقة التابعة</th>
+                    <th>مشرف المشروع</th>
+                    <th>الموقع</th>
+                    <th>عدد الموظفين</th>
+                  </tr>
+                </thead>
+                <tbody id="projectsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 10: Users -->
+        <section id="view-users" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>إدارة مستخدمي النظام والصلاحيات والمناطق (User Accounts & Access)</h3>
+              <button class="btn-primary" onclick="openUserModal()"><i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الدور (Role)</th>
+                    <th>المناطق المصرحة</th>
+                    <th>المشاريع المصرحة</th>
+                    <th>آخر دخول</th>
+                    <th>آخر نشاط</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات والصلاحيات</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 11: Reports -->
+        <section id="view-reports" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>تقارير الوثائق والمناطق وتصدير Excel</h3>
+              <button class="btn-primary" onclick="exportReportsCSV()"><i class="fa-solid fa-file-excel"></i> تصدير تقرير Excel / CSV</button>
+            </div>
+            <p style="color: var(--text-muted);">يمكنك استخراج تقارير تفصيلية حسب المنطقة، المشروع، أو المشرف.</p>
+          </div>
+        </section>
+
+        <!-- View 12: Settings -->
+        <section id="view-settings" class="view-page">
+          <div class="card-box">
+            <div class="card-header">
+              <h3>إعدادات النظام والربط بـ Google Drive</h3>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>اسم الشركة بالعربية:</label>
+                <input type="text" class="form-control" value="شركة راس السعودية المحدودة" readonly>
+              </div>
+              <div class="form-group">
+                <label>اسم الشركة بالإنجليزية:</label>
+                <input type="text" class="form-control" value="RAS SAUDI COMPANY LTD (RASSCO)" readonly>
+              </div>
+              <div class="form-group">
+                <label>معرف مجلد Google Drive الرئيسي:</label>
+                <input type="text" class="form-control" value="1A2b3C4d5E6f7G8h9I0j_RASSCO_DOCS" readonly>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- View 13: Data Management & Template-Aware Import/Export -->
+        <section id="view-data-management" class="view-page">
+          
+          <!-- Card 1: Excel Template Aware Import Section -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-excel" style="color: #10B981;"></i> استيراد بيانات الموظفين من ملف Excel (Employees List.xlsx)</h3>
+              <button class="btn-secondary" onclick="downloadExcelTemplate()"><i class="fa-solid fa-download"></i> تنزيل النموذج المعتمد (Template)</button>
+            </div>
+            
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+              قم برفع الملف الرسمي <strong>نسخة من Employees List.xlsx</strong> أو أي ملف Excel متوافق لاستيراد وتحديث كافة بيانات الموظفين والمناطق والمشاريع دفعة واحدة.
+            </p>
+
+            <div class="excel-import-box" id="excelDropzone" onclick="document.getElementById('excelFileInput').click()">
+              <i class="fa-solid fa-cloud-arrow-up fa-3x" style="color: var(--rassco-turquoise); margin-bottom: 12px;"></i>
+              <h4 style="font-size: 16px; font-weight: 800;">اسحب ملف Excel أو اضغط هنا لاختيار الملف</h4>
+              <p style="color: var(--text-dim); font-size: 13px; margin-top: 6px;">يدعم الصيغ التالية: .xlsx, .xls, .csv (القالب الرسمي: Employees List.xlsx)</p>
+              <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" onchange="handleExcelFileSelect(event)" style="display: none;">
+            </div>
+
+            <!-- Template Compatibility Card -->
+            <div id="excelTemplateStatusBox" style="display: none; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; margin-top: 20px;">
+              <!-- Populated dynamically -->
+            </div>
+
+            <!-- Interactive Import Preview Screen -->
+            <div id="excelPreviewContainer" style="display: none; margin-top: 24px;">
+              <h4 style="margin-bottom: 16px; font-weight: 800;"><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--rassco-turquoise);"></i> معاينة تفاصيل واستعادة بيانات الملف قبل الاستيراد النهائي</h4>
+
+              <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 20px;">
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-turquoise"><i class="fa-solid fa-list-ol"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatTotal">0</h3>
+                    <p>إجمالي الصفوف</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-green"><i class="fa-solid fa-user-plus"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatNew">0</h3>
+                    <p>موظفون جدد</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-purple"><i class="fa-solid fa-user-pen"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatUpdate">0</h3>
+                    <p>سيتم تحديثهم</p>
+                  </div>
+                </div>
+                <div class="kpi-card" style="padding: 16px;">
+                  <div class="kpi-icon kpi-orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                  <div class="kpi-info">
+                    <h3 id="prevStatDuplicates">0</h3>
+                    <p>تكرارات / تنبيهات</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>الاسم</th>
+                      <th>رقم الموظف (EMP)</th>
+                      <th>رقم الإقامة (ID)</th>
+                      <th>المشروع</th>
+                      <th>المنطقة / الموقع</th>
+                      <th>حالة المعاينة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excelPreviewTbody"></tbody>
+                </table>
+              </div>
+
+              <div style="display: flex; gap: 14px; margin-top: 20px; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="cancelExcelImport()">إلغاء الاستيراد</button>
+                <button class="btn-primary" onclick="confirmExcelImport()" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="fa-solid fa-check-double"></i> تأكيد الاستيراد ودمج البيانات</button>
+              </div>
+            </div>
+
+            <!-- Last Import Information -->
+            <div style="margin-top: 20px; font-size: 13px; color: var(--text-muted); background: var(--bg-primary); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);" id="lastImportInfoBox">
+              <i class="fa-solid fa-history" style="color: var(--rassco-turquoise);"></i> آخر عملية استيراد: <strong>نسخة من Employees List.xlsx</strong> (1,529 موظف) | التاريخ: 07/09/2026 بواسطة: النظام الرئيسي
+            </div>
+          </div>
+
+          <!-- Card 2: Official Template Excel Export Section -->
+          <div class="card-box">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-file-export" style="color: var(--rassco-turquoise);"></i> تصدير البيانات إلى ملف Excel (.xlsx) بنفس القالب الرسمي</h3>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 18px;">
+              يستخرج النظام ملف Excel حقيقي (.xlsx) يحافظ على هيكل وتنسيق القالب الأصلي للملف بالإضافة إلى أعمدة المتابعة اللحظية وحالات الوثائق ورخص القيادة والفوركلفت والمشرفين المنفذين للتعديلات.
+            </p>
+            <button class="btn-primary" id="btnExportExcel" onclick="exportDataToOfficialExcel()"><i class="fa-solid fa-file-excel"></i> تصدير كافة البيانات إلى Excel (.xlsx)</button>
+          </div>
+
+          <!-- Card 3: Data Management & Cleanup Danger Zone (Super Admin Only) -->
+          <div class="card-box" style="border-color: rgba(239, 68, 68, 0.4); background: var(--bg-card);">
+            <div class="card-header">
+              <h3 style="color: #EF4444;"><i class="fa-solid fa-triangle-exclamation"></i> إدارة البيانات الحساسة والتنظيف (Super Admin Only)</h3>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 13px;">
+              تتيح لك هذه الأدوات إزالة بيانات الموظفين المستوردة والتشغيلية لإعادة استيراد ملف جديد، أو إجراء إعادة ضبط كاملة للنظام. يتم إنشاء نسخة احتياطية (Backup) تلقائياً قبل أي حذف.
+            </p>
+
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="openRemoveAllEmployeesModal()" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+                <i class="fa-solid fa-trash-can"></i> إزالة كافة بيانات الموظفين
+              </button>
+              <button class="btn-secondary" onclick="openFullSystemResetModal()" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.4);">
+                <i class="fa-solid fa-power-off"></i> إعادة ضبط النظام بالكامل (Full System Reset)
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Supervisor Drill-down Modal (Phase 2 Master Requirement) -->
+  <div class="modal-overlay" id="supervisorDrilldownModal">
+    <div class="modal-container" style="max-width: 850px;">
+      <div class="modal-header">
+        <h3 id="supModalTitle">تفاصيل إنجاز المشرف والمتبقي لديه</h3>
+        <button class="modal-close" onclick="closeSupervisorModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: var(--bg-primary); padding: 18px; border-radius: var(--radius-md); margin-bottom: 20px; border: 1px solid var(--border-color);" id="supModalBanner">
+          <!-- Populated dynamically -->
+        </div>
+
+        <h4 style="margin-bottom: 14px;"><i class="fa-solid fa-list-check" style="color: var(--rassco-turquoise);"></i> قائمة الموظفين المتبقين لدى المشرف بالأسماء والبيانات الناقصة بالضبط</h4>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>رقم الموظف</th>
+                <th>اسم الموظف</th>
+                <th>المشروع</th>
+                <th>حالة التعبئة</th>
+                <th>البيانات والوثائق الناقصة بالضبط</th>
+                <th>فتح الملف</th>
+              </tr>
+            </thead>
+            <tbody id="supModalRemainingTbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeSupervisorModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User & Scope Management Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal-container" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 id="userModalTitle">إضافة مستخدم جديد وتحديد الصلاحيات</h3>
+        <button class="modal-close" onclick="closeUserModal()">&times;</button>
+      </div>
+
+      <form id="userForm" onsubmit="saveUserForm(event)">
+        <div class="modal-body">
+          <input type="hidden" id="modalUserId">
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>الاسم الكامل:</label>
+            <input type="text" class="form-control" id="modalUserName" required placeholder="مثال: أحمد علي">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>البريد الإلكتروني (إيميل الدخول):</label>
+            <input type="email" class="form-control" id="modalUserEmail" required placeholder="name@rassco.com.sa">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>كلمة المرور:</label>
+            <input type="password" class="form-control" id="modalUserPassword" placeholder="اتركه فارغاً للحفاظ على كلمة المرور الحالية">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>الدور والصلاحية (Role):</label>
+            <select class="form-control" id="modalUserRole" onchange="handleUserRoleModalChange()">
+              <option value="Super Admin">المدير العام (Super Admin - جميع المناطق)</option>
+              <option value="HR Admin">مدير الموارد البشرية (HR Admin)</option>
+              <option value="Regional Supervisor">مشرف منطقة (Regional Supervisor)</option>
+              <option value="Project Manager">مدير مشروع (Project Manager)</option>
+              <option value="Viewer">مستخدم للعرض فقط (Viewer)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label>حالة الحساب:</label>
+            <select class="form-control" id="modalUserStatus">
+              <option value="Active">نشط (Active)</option>
+              <option value="Inactive">غير نشط (Inactive)</option>
+              <option value="Suspended">موقوف (Suspended)</option>
+            </select>
+          </div>
+
+          <div id="modalUserAccessScopeGroup" style="background: var(--bg-primary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-top: 14px;">
+            <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot" style="color: var(--rassco-turquoise);"></i> ربط المشرف بالمناطق والمشاريع المصرحة (User_Access Table)</h4>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label>اختر المناطق المسموحة:</label>
+              <div id="modalUserRegionsCheckboxes" style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>اختر المشاريع المسموحة:</label>
+              <div id="modalUserProjectsCheckboxes" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ المستخدم والصلاحيات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manual New Employee Modal -->
+  <div class="modal-overlay" id="employeeModal">
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>إضافة موظف جديد مخصص</h3>
+        <button class="modal-close" onclick="closeNewEmployeeModal()">&times;</button>
+      </div>
+
+      <form id="newEmployeeForm" onsubmit="saveNewEmployeeForm(event)">
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>الاسم الكامل:</label>
+            <input type="text" class="form-control" id="newEmpName" required placeholder="اسم الموظف">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>الرقم الوظيفي (EMP):</label>
+            <input type="text" class="form-control" id="newEmpNumber" required placeholder="مثال: 1456">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>رقم الإقامة / الهوية الوطنية (ID):</label>
+            <input type="text" class="form-control" id="newEmpIqama" required placeholder="مثال: 2160564056">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>المنطقة التابعة:</label>
+            <select class="form-control" id="newEmpRegion">
+              <option value="REG-01">المنطقة الوسطى (الرياض)</option>
+              <option value="REG-02">المنطقة الغربية (جدة ومكة والمدينة)</option>
+              <option value="REG-03">المنطقة الشرقية (الخبر والدمام)</option>
+              <option value="REG-04">المنطقة الجنوبية (أبها وعسير)</option>
+              <option value="REG-05">منطقة القصيم (بريدة وعنيزة)</option>
+              <option value="REG-06">المنطقة الشمالية (حائل وتبوك)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>اسم المشروع:</label>
+            <input type="text" class="form-control" id="newEmpProject" required placeholder="مثال: Al Nemer">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeNewEmployeeModal()">إلغاء</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-user-check"></i> إضافة وحفظ الموظف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal: Remove All Employee Data -->
+  <div class="modal-overlay" id="removeEmployeesModal">
+    <div class="modal-container" style="max-width: 520px; border: 2px solid #EF4444;">
+      <div class="modal-header" style="background: rgba(239, 68, 68, 0.08);">
+        <h3 style="color: #EF4444;"><i class="fa-solid fa-triangle-exclamation"></i> تحذير أمني: إزالة كافة بيانات الموظفين</h3>
+        <button class="modal-close" onclick="closeRemoveEmployeesModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: rgba(239, 68, 68, 0.1); color: #DC2626; padding: 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; margin-bottom: 16px;">
+          ⚠️ سيتم إزالة كافة سجلات الموظفين والوثائق والتقدم المحسوب للمشرفين. يتم أولاً إنشاء نسخة احتياطية (Backup) تلقائياً قبل الحذف.<br>
+          ملاحظة: لن يتم حذف إعدادات الشركة، والشعار، والحسابات، والمناطق، والمشاريع.
+        </div>
+
+        <div class="form-group">
+          <label>لتأكيد العملية، يرجى كتابة النص التالي بالضبط:</label>
+          <div style="font-weight: 900; color: #EF4444; margin: 6px 0; font-size: 14px; user-select: all;">حذف جميع بيانات الموظفين</div>
+          <input type="text" class="form-control" id="removeEmployeesConfirmInput" placeholder="اكتب هنا لتأكيد الحذف">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeRemoveEmployeesModal()">إلغاء</button>
+        <button class="btn-primary" onclick="confirmRemoveAllEmployeeData()" style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+          <i class="fa-solid fa-trash-can"></i> تأكيد الحذف وإنشاء النسخة الاحتياطية
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal: Full System Reset -->
+  <div class="modal-overlay" id="fullResetModal">
+    <div class="modal-container" style="max-width: 520px; border: 2px solid #DC2626;">
+      <div class="modal-header" style="background: rgba(220, 38, 38, 0.1);">
+        <h3 style="color: #DC2626;"><i class="fa-solid fa-power-off"></i> تحذير حرج: إعادة ضبط النظام بالكامل</h3>
+        <button class="modal-close" onclick="closeFullResetModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color: var(--text-main); font-size: 14px; margin-bottom: 14px;">
+          سيؤدي هذا الخيار إلى إعادة النظام بالكامل إلى حالته المصنعية الأولى وإنشاء نسخة احتياطية أولية.
+        </p>
+
+        <div class="form-group">
+          <label>اكتب النص التالي للتأكيد:</label>
+          <div style="font-weight: 900; color: #DC2626; margin: 6px 0; font-size: 14px; user-select: all;">FULL SYSTEM RESET</div>
+          <input type="text" class="form-control" id="fullResetConfirmInput" placeholder="اكتب FULL SYSTEM RESET">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeFullResetModal()">إلغاء</button>
+        <button class="btn-primary" onclick="confirmFullSystemReset()" style="background: #DC2626;">
+          تأكيد إعادة الضبط الكامل
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/**
+ * app.js - RASSCO Phase 2 SPA Controller
+ * Features: Authentication, Scope Authorization, Filling Status Engine,
+ * Supervisor Performance Monitoring, Activity Timelines, Next Incomplete Navigation.
+ */
+
+const state = {
+  currentUser: null,
+  regions: [
+    { Region_ID: 'REG-01', Region_Name_AR: 'المنطقة الوسطى (الرياض)' },
+    { Region_ID: 'REG-02', Region_Name_AR: 'المنطقة الغربية (جدة ومكة والمدينة)' },
+    { Region_ID: 'REG-03', Region_Name_AR: 'المنطقة الشرقية (الخبر والدمام)' },
+    { Region_ID: 'REG-04', Region_Name_AR: 'المنطقة الجنوبية (أبها وعسير وجازان)' },
+    { Region_ID: 'REG-05', Region_Name_AR: 'منطقة القصيم (بريدة وعنيزة)' },
+    { Region_ID: 'REG-06', Region_Name_AR: 'المنطقة الشمالية (حائل وتبوك والجوف)' }
+  ],
+  employees: [],
+  projects: [],
+  users: [],
+  userAccess: [],
+  activityLogs: [],
+  currentView: 'dashboard',
+  previousView: 'dashboard',
+  selectedRegion: 'ALL',
+  selectedProject: 'ALL',
+  selectedStatus: 'ALL',
+  selectedFillingStatus: 'ALL',
+  searchQuery: '',
+  currentPage: 1,
+  pageSize: 15,
+  activeEmployee: null,
+  activeSupervisorModal: null
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+});
+
+function initApp() {
+  setupNavigation();
+  setupSearchAndFilters();
+  setupThemeToggle();
+  loadData();
+  
+  const savedUser = localStorage.getItem('rassco_user_session');
+  if (savedUser) {
+    try {
+      state.currentUser = JSON.parse(savedUser);
+      document.getElementById('loginScreen').style.display = 'none';
+      renderCurrentView();
+    } catch (e) {
+      console.warn('Session parse error:', e);
+    }
+  }
+}
+
+// Authentication Handlers
+function handleLogin(e) {
+  if (e) e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const role = document.getElementById('loginRole').value;
+
+  let userId = 'USR-001';
+  let name = 'المدير العام (RASSCO Admin)';
+  let regId = 'ALL';
+  let regName = 'جميع المناطق';
+  let prjId = 'ALL';
+  let prjName = 'جميع المشاريع';
+
+  if (role === 'HR Admin') {
+    userId = 'USR-002';
+    name = 'مدير الموارد البشرية';
+  } else if (role === 'Regional Supervisor') {
+    userId = 'USR-003';
+    name = 'مشرف منطقة القصيم (أحمد علي)';
+    regId = 'REG-05';
+    regName = 'منطقة القصيم (بريدة وعنيزة)';
+  } else if (role === 'Project Manager') {
+    userId = 'USR-004';
+    name = 'مدير مشروع النمر (محمد صالح)';
+    regId = 'REG-01';
+    regName = 'المنطقة الوسطى (الرياض)';
+    prjId = 'PRJ-001';
+    prjName = 'Al Nemer';
+  }
+
+  state.currentUser = {
+    User_ID: userId,
+    Full_Name: name,
+    Email: email,
+    Role: role,
+    Region_ID: regId,
+    Region_Name: regName,
+    Project_ID: prjId,
+    Project_Name: prjName,
+    Last_Login: new Date().toLocaleTimeString('en-US', { hour12: true })
+  };
+
+  localStorage.setItem('rassco_user_session', JSON.stringify(state.currentUser));
+  document.getElementById('loginScreen').style.display = 'none';
+
+  logActivity('Login', true, '', '', `تسجيل دخول ناجح بدور: ${role}`);
+  showToast(`أهلاً بك: ${state.currentUser.Full_Name} (${state.currentUser.Role})`, 'success');
+
+  if (state.currentUser.Region_ID !== 'ALL') {
+    state.selectedRegion = state.currentUser.Region_ID;
+  }
+
+  populateRegionAndProjectDropdowns();
+  renderCurrentView();
+}
+
+function handleLogout() {
+  if (state.currentUser) {
+    logActivity('Logout', true, '', '', 'تسجيل الخروج من النظام');
+  }
+  state.currentUser = null;
+  localStorage.removeItem('rassco_user_session');
+  document.getElementById('loginScreen').style.display = 'flex';
+  showToast('تم تسجيل الخروج بنجاح', 'info');
+}
+
+// Navigation Handler
+function setupNavigation() {
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const view = item.getAttribute('data-view');
+      if (view) {
+        switchView(view);
+      }
+    });
+  });
+}
+
+function switchView(viewName) {
+  state.previousView = state.currentView;
+  state.currentView = viewName;
+  
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const activeNav = document.querySelector(`.nav-item[data-view="${viewName}"]`);
+  if (activeNav) activeNav.classList.add('active');
+
+  const titles = {
+    dashboard: 'لوحة التحكم المركزية - RASSCO',
+    supervisors: 'متابعة إنجاز المشرفين ونسب التقدم اللحظية',
+    employees: 'سجل الموظفين المسندين والمشاريع',
+    documents: 'سجل جميع المستندات المرفوعة على Google Drive',
+    expiring: 'الوثائق القريبة من الانتهاء (خلال 60 يوماً)',
+    expired: 'سجل الوثائق المنتهية',
+    missing: 'سجل المستندات الناقصة',
+    projects: 'قائمة المشاريع المعتمدة',
+    users: 'إدارة المستخدمين والصلاحيات والوصول',
+    'data-management': 'إدارة واستيراد وتصدير بيانات الموظفين (Excel)',
+    reports: 'التقارير والإحصائيات والتصدير',
+    settings: 'إعدادات النظام والربط بـ Google Drive'
+  };
+  document.getElementById('pageTitle').textContent = titles[viewName] || 'نظام إدارة الوثائق - RASSCO';
+
+  document.querySelectorAll('.view-page').forEach(p => p.classList.remove('active'));
+  const targetView = document.getElementById(`view-${viewName}`);
+  if (targetView) targetView.classList.add('active');
+
+  renderCurrentView();
+}
+
+function setupSearchAndFilters() {
+  const searchInput = document.getElementById('globalSearchInput');
+  searchInput.addEventListener('input', (e) => {
+    state.searchQuery = e.target.value.toLowerCase().trim();
+    state.currentPage = 1;
+    renderCurrentView();
+  });
+}
+
+function setupThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  btn.addEventListener('click', () => {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    btn.innerHTML = newTheme === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+  });
+}
+
+// Data Loader
+function loadData() {
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(res => {
+        if (res.success) {
+          state.employees = res.data.employees || [];
+          populateRegionAndProjectDropdowns();
+          renderCurrentView();
+        }
+      })
+      .apiCall('getEmployeesList', { pageSize: 1531 });
+  } else {
+    generateLocalSeedEmployees();
+    populateRegionAndProjectDropdowns();
+    renderCurrentView();
+  }
+}
+
+function generateLocalSeedEmployees() {
+  const savedOverride = localStorage.getItem('rassco_employees_override');
+  const savedImages = JSON.parse(localStorage.getItem('rassco_uploaded_images') || '{}');
+  const savedActivities = JSON.parse(localStorage.getItem('rassco_activity_logs') || '[]');
+  state.activityLogs = savedActivities;
+
+  if (savedOverride !== null) {
+    try {
+      state.employees = JSON.parse(savedOverride) || [];
+      state.employees.forEach(emp => {
+        if (!emp.Location) {
+          emp.Location = emp.Region_Name || emp.Region_ID || 'RUH';
+        }
+        if (savedImages[emp.Employee_ID]) {
+          emp.StoredDocs = savedImages[emp.Employee_ID];
+        }
+      });
+      return;
+    } catch (e) {
+      console.warn('Failed to parse employees override:', e);
+    }
+  }
+
+  state.employees = [];
+  const projectNames = [
+    'Al Nemer', 'Amazon', 'Al Magdouie', 'Fedex', 'Al Nahla - Samako',
+    'Kwick Box', 'Bulgari', 'Dior', 'Luxury Facility', 'Saudi Sports'
+  ];
+  const sampleLocations = ['RUH', 'JED', 'KHOBAR', 'DAM', 'ABHA', 'QAS', 'HAIL'];
+
+  for (let i = 1; i <= 1529; i++) {
+    const prj = projectNames[i % projectNames.length];
+    const locStr = sampleLocations[i % sampleLocations.length];
+    const name = sampleNames[i % sampleNames.length] + ' ' + i;
+    const empNo = 5000 + i;
+    const iqamaNo = '2' + String(100000000 + i * 37).padStart(9, '0');
+    const empId = String(10000 + i);
+
+    let iqamaExp = '2027-10-25';
+    if (i % 25 === 0) iqamaExp = '2026-08-15';
+    else if (i % 12 === 0) iqamaExp = '2026-09-20';
+
+    let passExp = '2028-05-10';
+    if (i % 30 === 0) passExp = '2026-09-18';
+
+    const drvAvail = (i % 3 === 0) ? 'Yes' : 'No';
+    const flAvail = (i % 5 === 0) ? 'Yes' : 'No';
+
+    const storedEmpDocs = savedImages[empId] || {};
+
+    const completion = calculateCompletionLocal({
+      Iqama_Number: iqamaNo,
+      Iqama_Expiry_Date: iqamaExp,
+      Passport_Number: 'A' + (100000 + i),
+      Passport_Expiry_Date: passExp,
+      Driving_License_Available: drvAvail,
+      Forklift_License_Available: flAvail,
+      StoredDocs: storedEmpDocs
+    });
+
+    let fillingStatus = 'Not Started';
+    if (completion.percentage === 100) fillingStatus = 'Completed';
+    else if (completion.percentage >= 50) fillingStatus = 'In Progress';
+    else if (i % 8 === 0) fillingStatus = 'In Progress';
+
+    state.employees.push({
+      Employee_ID: empId,
+      Employee_Number: String(empNo),
+      Employee_Name: name,
+      Nationality: 'سعودي / مقيم',
+      Job_Title: 'خدمات لوجستية',
+      Location: locStr,
+      Region_ID: locStr,
+      Region_Name: getLocationLabel(locStr),
+      Project_ID: 'PRJ-' + String((i % projectNames.length) + 1).padStart(3, '0'),
+      Project_Name: prj,
+      Mobile_Number: '05' + String(10000000 + i),
+      Iqama_Number: iqamaNo,
+      Iqama_Expiry_Date: iqamaExp,
+      Passport_Number: 'A' + (100000 + i),
+      Passport_Expiry_Date: passExp,
+      Driving_License_Available: drvAvail,
+      Driving_License_Number: drvAvail === 'Yes' ? 'DL-' + i : '',
+      Driving_License_Expiry_Date: drvAvail === 'Yes' ? '2027-12-01' : '',
+      Forklift_License_Available: flAvail,
+      Forklift_License_Number: flAvail === 'Yes' ? 'FL-' + i : '',
+      Forklift_License_Expiry_Date: flAvail === 'Yes' ? '2027-11-15' : '',
+      Employee_Status: 'Active',
+      Filling_Status: fillingStatus,
+      Profile_Completion_Percentage: completion.percentage,
+      Missing_Documents: completion.missingDocs.join(', '),
+      First_Filled_By_Name: 'System Migration',
+      Last_Updated_By_Name: 'مشرف المنطقة',
+      Last_Updated_At: '07/09/2026 04:30 PM',
+      StoredDocs: storedEmpDocs
+    });
+  }
+}
+
+function getLocationLabel(locStr) {
+  if (!locStr) return '-';
+  const s = String(locStr).toUpperCase().trim();
+  const locationNameMap = {
+    'RUH': 'المنطقة الوسطى (الرياض)',
+    'RIYADH': 'المنطقة الوسطى (الرياض)',
+    'JED': 'المنطقة الغربية (جدة ومكة والمدينة)',
+    'JEDDAH': 'المنطقة الغربية (جدة ومكة والمدينة)',
+    'KHOBAR': 'المنطقة الشرقية (الخبر والدمام)',
+    'KOB': 'المنطقة الشرقية (الخبر والدمام)',
+    'DAM': 'المنطقة الشرقية (الدمام والخبر)',
+    'DMM': 'المنطقة الشرقية (الدمام والخبر)',
+    'DAMMAM': 'المنطقة الشرقية (الدمام والخبر)',
+    'ABHA': 'المنطقة الجنوبية (أبها وعسير وجازان)',
+    'ABH': 'المنطقة الجنوبية (أبها وعسير وجازان)',
+    'QAS': 'منطقة القصيم (بريدة وعنيزة)',
+    'QSM': 'منطقة القصيم (بريدة وعنيزة)',
+    'HAIL': 'المنطقة الشمالية (حائل وتبوك والجوف)',
+    'HIL': 'المنطقة الشمالية (حائل وتبوك والجوف)',
+    'MAD': 'المنطقة الغربية (المدينة المنورة)',
+    'MED': 'المنطقة الغربية (المدينة المنورة)',
+    'TAIF': 'المنطقة الغربية (الطائف)',
+    'TIF': 'المنطقة الغربية (الطائف)',
+    'ALKHRAJ': 'المنطقة الوسطى (الخرج)',
+    'KHARJ': 'المنطقة الوسطى (الخرج)',
+    'KRJ': 'المنطقة الوسطى (الخرج)',
+    'JAZAN': 'المنطقة الجنوبية (جازان)',
+    'GIZ': 'المنطقة الجنوبية (جازان)',
+    'NAJRAN': 'المنطقة الجنوبية (نجران)',
+    'NAJ': 'المنطقة الجنوبية (نجران)',
+    'TABUK': 'المنطقة الشمالية (تبوك)',
+    'TBK': 'المنطقة الشمالية (تبوك)',
+    'JUBAIL': 'المنطقة الشرقية (الجبيل)',
+    'YANBU': 'المنطقة الغربية (ينبع)',
+    'YNB': 'المنطقة الغربية (ينبع)'
+  };
+
+  if (locationNameMap[s]) {
+    return `${locationNameMap[s]} (${s})`;
+  }
+  return locStr;
+}
+
+function getAvailableLocations() {
+  const counts = {};
+  (state.employees || []).forEach(e => {
+    const loc = e.Location || e.Region_Name || e.Region_ID || 'RUH';
+    counts[loc] = (counts[loc] || 0) + 1;
+  });
+
+  return Object.keys(counts).map(locKey => ({
+    id: locKey,
+    label: getLocationLabel(locKey),
+    count: counts[locKey]
+  })).sort((a, b) => b.count - a.count);
+}
+
+function parseLocationToRegion(locStr) {
+  if (!locStr) return { id: 'RUH', name: getLocationLabel('RUH') };
+  const s = String(locStr).trim();
+  return { id: s, name: getLocationLabel(s) };
+}
+
+function populateRegionAndProjectDropdowns() {
+  const locations = getAvailableLocations();
+
+  ['dash', 'emp', 'sup'].forEach(prefix => {
+    const regSelect = document.getElementById(`${prefix}RegionFilter`);
+    if (!regSelect) return;
+
+    regSelect.innerHTML = `<option value="ALL">جميع المناطق (${state.employees.length.toLocaleString('ar-SA')})</option>`;
+    locations.forEach(loc => {
+      regSelect.innerHTML += `<option value="${loc.id}">${loc.label} (${loc.count.toLocaleString('ar-SA')})</option>`;
+    });
+
+    if (state.selectedRegion !== 'ALL') {
+      regSelect.value = state.selectedRegion;
+    }
+
+    updateProjectDropdownForRegion(prefix);
+  });
+}
+
+function updateProjectDropdownForRegion(prefix) {
+  const prjSelect = document.getElementById(`${prefix}ProjectFilter`);
+  if (!prjSelect) return;
+
+  let filteredProjects = state.employees;
+  if (state.selectedRegion !== 'ALL') {
+    filteredProjects = state.employees.filter(e => {
+      const loc = e.Location || e.Region_Name || e.Region_ID;
+      return loc === state.selectedRegion || e.Region_ID === state.selectedRegion || e.Region_Name === state.selectedRegion;
+    });
+  }
+
+  const projectsMap = {};
+  filteredProjects.forEach(e => {
+    if (e.Project_Name) projectsMap[e.Project_Name] = (projectsMap[e.Project_Name] || 0) + 1;
+  });
+
+  const sortedProjects = Object.keys(projectsMap).sort();
+  prjSelect.innerHTML = `<option value="ALL">جميع المشاريع (${sortedProjects.length})</option>`;
+  sortedProjects.forEach(pName => {
+    prjSelect.innerHTML += `<option value="${pName}">${pName} (${projectsMap[pName]})</option>`;
+  });
+
+  if (state.selectedProject !== 'ALL') {
+    prjSelect.value = state.selectedProject;
+  }
+}
+
+function handleRegionChange(prefix) {
+  const regSelect = document.getElementById(`${prefix}RegionFilter`);
+  state.selectedRegion = regSelect.value;
+  state.selectedProject = 'ALL';
+  state.currentPage = 1;
+
+  ['dash', 'emp'].forEach(p => {
+    const other = document.getElementById(`${p}RegionFilter`);
+    if (other) other.value = state.selectedRegion;
+    updateProjectDropdownForRegion(p);
+  });
+
+  renderCurrentView();
+}
+
+function handleProjectChange(prefix) {
+  const prjSelect = document.getElementById(`${prefix}ProjectFilter`);
+  state.selectedProject = prjSelect.value;
+  state.currentPage = 1;
+
+  ['dash', 'emp'].forEach(p => {
+    const other = document.getElementById(`${p}ProjectFilter`);
+    if (other) other.value = state.selectedProject;
+  });
+
+  renderCurrentView();
+}
+
+function calculateDaysRemaining(expDate) {
+  if (!expDate) return null;
+  const exp = new Date(expDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  exp.setHours(0, 0, 0, 0);
+  return Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+}
+
+function getStatusBadgeHTML(expDate, avail) {
+  if (avail === 'No') return '<span class="badge badge-na">غير مطلوب</span>';
+  if (!expDate) return '<span class="badge badge-missing">مفقود</span>';
+
+  const days = calculateDaysRemaining(expDate);
+  if (days === null) return '<span class="badge badge-missing">مفقود</span>';
+  if (days < 0) return `<span class="badge badge-expired"><i class="fa-solid fa-circle-xmark"></i> منتهي (${Math.abs(days)} يوم)</span>`;
+  if (days <= 15) return `<span class="badge badge-critical"><i class="fa-solid fa-triangle-exclamation"></i> حرج (${days} يوم)</span>`;
+  if (days <= 30) return `<span class="badge badge-expiring"><i class="fa-solid fa-clock"></i> ينتهي قريباً (${days} يوم)</span>`;
+  if (days <= 60) return `<span class="badge badge-expiring"><i class="fa-solid fa-triangle-exclamation"></i> تحذير (${days} يوم)</span>`;
+  return `<span class="badge badge-valid"><i class="fa-solid fa-circle-check"></i> ساري</span>`;
+}
+
+function getFillingStatusBadgeHTML(status) {
+  if (status === 'Completed') return '<span class="badge badge-valid"><i class="fa-solid fa-check-double"></i> مكتمل بالكامل (Completed)</span>';
+  if (status === 'In Progress') return '<span class="badge badge-expiring"><i class="fa-solid fa-spinner"></i> جاري التعبئة (In Progress)</span>';
+  if (status === 'Needs Review') return '<span class="badge badge-critical"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج مراجعة (Needs Review)</span>';
+  return '<span class="badge badge-missing"><i class="fa-solid fa-circle-pause"></i> لم يبدأ (Not Started)</span>';
+}
+
+function calculateCompletionLocal(emp) {
+  let points = 20;
+  let total = 60;
+  let missing = [];
+
+  if (emp.Iqama_Number && emp.Iqama_Expiry_Date) points += 20;
+  else missing.push('الإقامة');
+
+  if (emp.Passport_Number && emp.Passport_Expiry_Date) points += 20;
+  else missing.push('الجواز');
+
+  if (emp.Driving_License_Available === 'Yes') {
+    total += 20;
+    if (emp.Driving_License_Number && emp.Driving_License_Expiry_Date) points += 20;
+    else missing.push('رخصة القيادة');
+  }
+
+  if (emp.Forklift_License_Available === 'Yes') {
+    total += 20;
+    if (emp.Forklift_License_Number && emp.Forklift_License_Expiry_Date) points += 20;
+    else missing.push('رخصة الفوركلفت');
+  }
+
+  const pct = Math.round((points / total) * 100);
+  return { percentage: pct, missingDocs: missing };
+}
+
+// Master Render Engine
+function renderCurrentView() {
+  const filtered = filterEmployees();
+
+  updateHeaderStats();
+
+  if (state.currentView === 'dashboard') {
+    renderDashboard(filtered);
+  } else if (state.currentView === 'supervisors') {
+    renderSupervisorPerformanceView();
+  } else if (state.currentView === 'employees') {
+    renderEmployeesTable(filtered);
+  } else if (state.currentView === 'documents') {
+    renderDocumentsTable();
+  } else if (state.currentView === 'expiring') {
+    renderExpiringTable();
+  } else if (state.currentView === 'expired') {
+    renderExpiredTable();
+  } else if (state.currentView === 'missing') {
+    renderMissingTable();
+  } else if (state.currentView === 'projects') {
+    renderProjectsTable();
+  } else if (state.currentView === 'users') {
+    renderUsersTable();
+  }
+}
+
+function filterEmployees() {
+  const dashFill = document.getElementById('dashFillingFilter');
+  const empFill = document.getElementById('empFillingFilter');
+  const activeFillingFilter = (dashFill && dashFill.value !== 'ALL') ? dashFill.value : ((empFill && empFill.value !== 'ALL') ? empFill.value : 'ALL');
+
+  return state.employees.filter(emp => {
+    const empLoc = emp.Location || emp.Region_Name || emp.Region_ID;
+
+    if (state.currentUser && state.currentUser.Role === 'Regional Supervisor') {
+      if (state.currentUser.Region_ID !== 'ALL' && empLoc !== state.currentUser.Region_ID && emp.Region_ID !== state.currentUser.Region_ID) return false;
+    }
+    if (state.currentUser && state.currentUser.Role === 'Project Manager') {
+      if (state.currentUser.Project_ID !== 'ALL' && emp.Project_Name !== state.currentUser.Project_Name) return false;
+    }
+
+    if (state.selectedRegion !== 'ALL' && empLoc !== state.selectedRegion && emp.Region_ID !== state.selectedRegion && emp.Region_Name !== state.selectedRegion) return false;
+    if (state.selectedProject !== 'ALL' && emp.Project_Name !== state.selectedProject) return false;
+    if (activeFillingFilter !== 'ALL' && emp.Filling_Status !== activeFillingFilter) return false;
+
+    if (state.searchQuery) {
+      const q = state.searchQuery;
+      const matchName = (emp.Employee_Name || '').toLowerCase().includes(q);
+      const matchEmpNo = (emp.Employee_Number || '').toLowerCase().includes(q);
+      const matchIqama = (emp.Iqama_Number || '').toLowerCase().includes(q);
+      const matchRegion = (emp.Region_Name || '').toLowerCase().includes(q) || (emp.Location || '').toLowerCase().includes(q);
+      const matchProject = (emp.Project_Name || '').toLowerCase().includes(q);
+      if (!matchName && !matchEmpNo && !matchIqama && !matchRegion && !matchProject) return false;
+    }
+
+    return true;
+  });
+}
+
+function updateHeaderStats() {
+  let expiredCount = 0;
+  let expiringSoonCount = 0;
+
+  state.employees.forEach(emp => {
+    const iqamaDays = calculateDaysRemaining(emp.Iqama_Expiry_Date);
+    if (iqamaDays !== null) {
+      if (iqamaDays < 0) expiredCount++;
+      else if (iqamaDays <= 60) expiringSoonCount++;
+    }
+  });
+
+  document.getElementById('statTotalEmps').textContent = state.employees.length.toLocaleString('ar-SA');
+  document.getElementById('statExpiredIqama').textContent = expiredCount.toLocaleString('ar-SA');
+  document.getElementById('statExpiringSoon').textContent = expiringSoonCount.toLocaleString('ar-SA');
+  document.getElementById('expiringBadge').textContent = expiringSoonCount;
+  document.getElementById('expiredBadge').textContent = expiredCount;
+}
+
+// Render Dashboard View
+function renderDashboard(employees) {
+  const tbody = document.getElementById('dashboardTbody');
+  if (!tbody) return;
+
+  const sample = employees.slice(0, 10);
+  tbody.innerHTML = sample.map(emp => `
+    <tr>
+      <td><strong>${emp.Employee_Number}</strong></td>
+      <td><a href="#" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')" style="color: var(--rassco-turquoise); font-weight: 700;">${emp.Employee_Name}</a></td>
+      <td>${emp.Region_Name || '-'}</td>
+      <td>${emp.Project_Name}</td>
+      <td>${getFillingStatusBadgeHTML(emp.Filling_Status)}</td>
+      <td>${getStatusBadgeHTML(emp.Iqama_Expiry_Date, 'Yes')}</td>
+      <td>${getStatusBadgeHTML(emp.Passport_Expiry_Date, 'Yes')}</td>
+      <td>
+        <div class="progress-container">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${emp.Profile_Completion_Percentage}%"></div></div>
+          <span class="progress-text">${emp.Profile_Completion_Percentage}%</span>
+        </div>
+      </td>
+      <td>
+        <button class="btn-sm btn-secondary" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')"><i class="fa-solid fa-eye"></i> عرض الملف</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// View 12: Executive Supervisor Performance Monitoring Dashboard (Master Requirement)
+function renderSupervisorPerformanceView() {
+  const tbody = document.getElementById('supervisorsTbody');
+  if (!tbody) return;
+
+  const supervisorsData = [
+    { id: 'USR-003', name: 'أحمد علي (مشرف القصيم)', email: 'sup.qassim@rassco.com.sa', region: 'منطقة القصيم (بريدة وعنيزة)', projects: 'SPL Qassim, Warehouse Qassim', assigned: 200, completed: 150, inProgress: 30, notStarted: 20, lastLogin: 'اليوم 08:00 AM', lastAct: 'اليوم 04:15 PM' },
+    { id: 'USR-004', name: 'محمد صالح (مشرف الرياض)', email: 'pm.nemer@rassco.com.sa', region: 'المنطقة الوسطى (الرياض)', projects: 'Al Nemer, Fedex', assigned: 280, completed: 250, inProgress: 20, notStarted: 10, lastLogin: 'اليوم 09:30 AM', lastAct: 'اليوم 03:45 PM' },
+    { id: 'USR-005', name: 'خالد حسن (مشرف حائل)', email: 'sup.hail@rassco.com.sa', region: 'المنطقة الشمالية (حائل)', projects: 'Hail Logistics', assigned: 150, completed: 60, inProgress: 40, notStarted: 50, lastLogin: 'أمس 02:00 PM', lastAct: 'أمس 03:10 PM' }
+  ];
+
+  tbody.innerHTML = supervisorsData.map(sup => {
+    const pct = Math.round((sup.completed / sup.assigned) * 100);
+    const rem = sup.assigned - sup.completed;
+
+    return `
+      <tr>
+        <td><strong>${sup.name}</strong><br><span style="font-size: 11px; color: var(--text-dim);">${sup.email}</span></td>
+        <td>${sup.region}</td>
+        <td>${sup.projects}</td>
+        <td><strong>${sup.assigned} موظف</strong></td>
+        <td><span style="color: #10B981; font-weight: 800;">${sup.completed}</span></td>
+        <td><span style="color: #F59E0B; font-weight: 800;">${sup.inProgress}</span></td>
+        <td><span style="color: #EF4444; font-weight: 800;">${sup.notStarted}</span></td>
+        <td><strong style="color: var(--status-critical);">${rem} متبقي</strong></td>
+        <td>
+          <div class="progress-container">
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%"></div></div>
+            <span class="progress-text">${pct}%</span>
+          </div>
+        </td>
+        <td>${sup.lastAct}</td>
+        <td>
+          <button class="btn-sm btn-primary" onclick="openSupervisorDetailsModal('${sup.id}', '${sup.name}', ${sup.assigned}, ${sup.completed}, ${rem})">
+            <i class="fa-solid fa-list-check"></i> عرض المتبقي بالأسماء
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Supervisor Drill-down Modal Router (Master Requirement)
+function openSupervisorDetailsModal(supId, supName, assigned, completed, remaining) {
+  state.activeSupervisorModal = supId;
+
+  document.getElementById('supModalTitle').textContent = `تقرير إنجاز ومتبقي المشرف: ${supName}`;
+  const pct = Math.round((completed / assigned) * 100);
+
+  document.getElementById('supModalBanner').innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h4 style="font-size: 18px; font-weight: 800;">${supName}</h4>
+        <p style="color: var(--text-muted); font-size: 13px;">إجمالي الموظفين المسندين: <strong>${assigned}</strong> | المكتمل: <strong style="color: #10B981;">${completed}</strong> | المتبقي: <strong style="color: #EF4444;">${remaining}</strong></p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 20px; font-weight: 900; color: var(--rassco-turquoise);">${pct}% نسبة الإنجاز</span>
+      </div>
+    </div>
+  `;
+
+  // Get Incomplete Employees
+  const incompleteList = state.employees.filter(e => e.Filling_Status !== 'Completed').slice(0, 15);
+
+  const tbody = document.getElementById('supModalRemainingTbody');
+  tbody.innerHTML = incompleteList.map(emp => `
+    <tr>
+      <td><strong>${emp.Employee_Number}</strong></td>
+      <td>${emp.Employee_Name}</td>
+      <td>${emp.Project_Name}</td>
+      <td>${getFillingStatusBadgeHTML(emp.Filling_Status)}</td>
+      <td><span style="color: #EF4444; font-weight: 700;">${emp.Missing_Documents || 'صورة الجواز، تاريخ الإقامة'}</span></td>
+      <td>
+        <button class="btn-sm btn-primary" onclick="closeSupervisorModal(); openEmployeeDetailsPage('${emp.Employee_ID}');">
+          <i class="fa-solid fa-folder-open"></i> استكمال الملف
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('supervisorDrilldownModal').classList.add('active');
+}
+
+function closeSupervisorModal() {
+  document.getElementById('supervisorDrilldownModal').classList.remove('active');
+}
+
+// Render Employees Table View
+function renderEmployeesTable(employees) {
+  const tbody = document.getElementById('employeesTbody');
+  if (!tbody) return;
+
+  const total = employees.length;
+  const start = (state.currentPage - 1) * state.pageSize;
+  const paginated = employees.slice(start, start + state.pageSize);
+
+  tbody.innerHTML = paginated.map(emp => `
+    <tr>
+      <td><strong>${emp.Employee_Number}</strong></td>
+      <td><a href="#" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')" style="color: var(--rassco-turquoise); font-weight: 700;">${emp.Employee_Name}</a></td>
+      <td>${emp.Region_Name || '-'}</td>
+      <td>${emp.Project_Name}</td>
+      <td>${getFillingStatusBadgeHTML(emp.Filling_Status)}</td>
+      <td>${getStatusBadgeHTML(emp.Iqama_Expiry_Date, 'Yes')}</td>
+      <td>${getStatusBadgeHTML(emp.Passport_Expiry_Date, 'Yes')}</td>
+      <td>${emp.Last_Updated_By_Name || 'مشرف المشروع'}</td>
+      <td>
+        <div class="progress-container">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${emp.Profile_Completion_Percentage}%"></div></div>
+          <span class="progress-text">${emp.Profile_Completion_Percentage}%</span>
+        </div>
+      </td>
+      <td>
+        <button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')"><i class="fa-solid fa-pen-to-square"></i> عرض وتحديث</button>
+      </td>
+    </tr>
+  `).join('');
+
+  const totalPages = Math.ceil(total / state.pageSize) || 1;
+  document.getElementById('paginationInfo').textContent = `عرض ${start + 1} - ${Math.min(start + state.pageSize, total)} من إجمالي ${total}`;
+  
+  let buttonsHTML = '';
+  if (state.currentPage > 1) {
+    buttonsHTML += `<button class="btn-sm btn-secondary" onclick="changePage(${state.currentPage - 1})">السابق</button>`;
+  }
+  buttonsHTML += `<span style="padding: 6px 12px; font-weight: 700;">صفحة ${state.currentPage} من ${totalPages}</span>`;
+  if (state.currentPage < totalPages) {
+    buttonsHTML += `<button class="btn-sm btn-secondary" onclick="changePage(${state.currentPage + 1})">التالي</button>`;
+  }
+  document.getElementById('paginationButtons').innerHTML = buttonsHTML;
+}
+
+function changePage(newPage) {
+  state.currentPage = newPage;
+  renderCurrentView();
+}
+
+// Dedicated Employee Details View Router
+function openEmployeeDetailsPage(employeeId) {
+  const emp = state.employees.find(e => e.Employee_ID === employeeId);
+  if (!emp) return;
+
+  state.activeEmployee = emp;
+
+  logActivity('Employee Opened', false, emp.Employee_ID, emp.Employee_Name, 'فتح شاشة تفاصيل الموظف');
+
+  // Header Banner
+  document.getElementById('detEmpName').textContent = emp.Employee_Name;
+  document.getElementById('detEmpSubtitle').textContent = `الرقم الوظيفي: ${emp.Employee_Number} | ${emp.Region_Name || 'المنطقة الوسطى'} | مشروع ${emp.Project_Name}`;
+  document.getElementById('detEmpAuditorInfo').innerHTML = `<i class="fa-solid fa-user-pen"></i> تم الإنشاء بواسطة: ${emp.First_Filled_By_Name || 'System Migration'} | آخر تحديث بواسطة: ${emp.Last_Updated_By_Name || 'المشرف'} (${emp.Last_Updated_At || 'اليوم'})`;
+  
+  document.getElementById('detCompletionFill').style.width = `${emp.Profile_Completion_Percentage}%`;
+  document.getElementById('detCompletionText').textContent = `${emp.Profile_Completion_Percentage}%`;
+  document.getElementById('detFillingStatusBadge').innerHTML = getFillingStatusBadgeHTML(emp.Filling_Status);
+
+  // Cards
+  document.getElementById('detIqamaNo').value = emp.Iqama_Number || '';
+  document.getElementById('detIqamaExp').value = emp.Iqama_Expiry_Date || '';
+  document.getElementById('detIqamaBadge').innerHTML = getStatusBadgeHTML(emp.Iqama_Expiry_Date, 'Yes');
+  renderDocPreview('detIqamaPreviewBox', emp.StoredDocs && emp.StoredDocs['Iqama']);
+
+  document.getElementById('detPassNo').value = emp.Passport_Number || '';
+  document.getElementById('detPassExp').value = emp.Passport_Expiry_Date || '';
+  document.getElementById('detPassportBadge').innerHTML = getStatusBadgeHTML(emp.Passport_Expiry_Date, 'Yes');
+  renderDocPreview('detPassPreviewBox', emp.StoredDocs && emp.StoredDocs['Passport']);
+
+  const drvCheck = document.getElementById('detDrvAvail');
+  drvCheck.checked = emp.Driving_License_Available === 'Yes';
+  document.getElementById('detDrvNo').value = emp.Driving_License_Number || '';
+  document.getElementById('detDrvExp').value = emp.Driving_License_Expiry_Date || '';
+  document.getElementById('detDrvBadge').innerHTML = getStatusBadgeHTML(emp.Driving_License_Expiry_Date, emp.Driving_License_Available);
+  renderDocPreview('detDrvPreviewBox', emp.StoredDocs && emp.StoredDocs['Driving License']);
+
+  const flCheck = document.getElementById('detFlAvail');
+  flCheck.checked = emp.Forklift_License_Available === 'Yes';
+  document.getElementById('detFlNo').value = emp.Forklift_License_Number || '';
+  document.getElementById('detFlExp').value = emp.Forklift_License_Expiry_Date || '';
+  document.getElementById('detFlBadge').innerHTML = getStatusBadgeHTML(emp.Forklift_License_Expiry_Date, emp.Forklift_License_Available);
+  renderDocPreview('detFlPreviewBox', emp.StoredDocs && emp.StoredDocs['Forklift License']);
+
+  toggleDetLicenseFields();
+  renderActivityTimeline(emp.Employee_ID);
+
+  switchView('employee-details');
+}
+
+function toggleDetLicenseFields() {
+  const drvCheck = document.getElementById('detDrvAvail');
+  document.getElementById('detDrvAvailLabel').textContent = drvCheck.checked ? 'متوفر' : 'لا يوجد';
+  document.getElementById('detDrvFields').style.display = drvCheck.checked ? 'block' : 'none';
+
+  const flCheck = document.getElementById('detFlAvail');
+  document.getElementById('detFlAvailLabel').textContent = flCheck.checked ? 'متوفر' : 'لا يوجد';
+  document.getElementById('detFlFields').style.display = flCheck.checked ? 'block' : 'none';
+}
+
+function renderDocPreview(boxId, docData) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+
+  if (docData && docData.dataUri) {
+    if (docData.isPdf) {
+      box.innerHTML = `<a href="${docData.dataUri}" target="_blank" style="color: var(--rassco-turquoise); font-weight: 700;"><i class="fa-solid fa-file-pdf fa-2x"></i><br>فتح ملف الجواز PDF</a>`;
+    } else {
+      box.innerHTML = `<img src="${docData.dataUri}" class="doc-preview-img" alt="Uploaded Document Preview">`;
+    }
+  } else {
+    box.innerHTML = `<span style="color: var(--text-dim); font-size: 13px;"><i class="fa-solid fa-image"></i> لا توجد صورة مرفوعة بعد</span>`;
+  }
+}
+
+// Activity Logger Engine (Separating Productive vs View Activity)
+function logActivity(type, isProductive, empId, empName, details) {
+  const user = state.currentUser || { Full_Name: 'المشرف', Email: 'sup@rassco.com.sa', Role: 'Project Manager' };
+  const entry = {
+    Timestamp: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+    Date: new Date().toISOString().split('T')[0],
+    User_Name: user.Full_Name,
+    Role: user.Role,
+    Employee_ID: empId,
+    Employee_Name: empName,
+    Type: type,
+    IsProductive: isProductive,
+    Details: details
+  };
+
+  state.activityLogs.unshift(entry);
+  localStorage.setItem('rassco_activity_logs', JSON.stringify(state.activityLogs));
+}
+
+function renderActivityTimeline(empId) {
+  const container = document.getElementById('detActivityTimeline');
+  if (!container) return;
+
+  const empLogs = state.activityLogs.filter(l => l.Employee_ID === empId);
+
+  if (empLogs.length === 0) {
+    container.innerHTML = `
+      <div style="background: var(--bg-primary); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 13px; color: var(--text-muted);">
+        <i class="fa-solid fa-info-circle"></i> تم إنشاء سجل الموظف في النظام عبر عملية الاستيراد الأولية.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = empLogs.map(log => `
+    <div style="background: var(--bg-primary); padding: 12px 16px; border-radius: var(--radius-md); border-right: 4px solid var(--rassco-turquoise); border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <strong>${log.User_Name}</strong> (${log.Role}): <span style="color: var(--rassco-turquoise-dark); font-weight: 700;">${log.Details}</span>
+      </div>
+      <span style="font-size: 12px; color: var(--text-dim);">${log.Timestamp}</span>
+    </div>
+  `).join('');
+}
+
+// Upload & Verified Google Drive Pipeline Simulation
+function uploadSpecificDoc(docType) {
+  if (!state.activeEmployee) return;
+
+  let fileInputId = 'detIqamaFile';
+  let numInputId = 'detIqamaNo';
+  let expInputId = 'detIqamaExp';
+
+  if (docType === 'Passport') { fileInputId = 'detPassFile'; numInputId = 'detPassNo'; expInputId = 'detPassExp'; }
+  else if (docType === 'Driving License') { fileInputId = 'detDrvFile'; numInputId = 'detDrvNo'; expInputId = 'detDrvExp'; }
+  else if (docType === 'Forklift License') { fileInputId = 'detFlFile'; numInputId = 'detFlNo'; expInputId = 'detFlExp'; }
+
+  const fileInput = document.getElementById(fileInputId);
+  const docNumber = document.getElementById(numInputId).value;
+  const expiryDate = document.getElementById(expInputId).value;
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    showToast(`يرجى اختيار ملف صورة أو PDF لـ ${docType}`, 'warning');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const isPdf = file.name.endsWith('.pdf');
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUri = e.target.result;
+
+    if (!state.activeEmployee.StoredDocs) state.activeEmployee.StoredDocs = {};
+    
+    state.activeEmployee.StoredDocs[docType] = {
+      dataUri: dataUri,
+      fileName: file.name,
+      uploadedAt: new Date().toISOString(),
+      isPdf: isPdf,
+      driveFileId: 'DRIVE-FILE-' + Date.now()
+    };
+
+    const savedImages = JSON.parse(localStorage.getItem('rassco_uploaded_images') || '{}');
+    savedImages[state.activeEmployee.Employee_ID] = state.activeEmployee.StoredDocs;
+    localStorage.setItem('rassco_uploaded_images', JSON.stringify(savedImages));
+
+    if (docType === 'Iqama') { state.activeEmployee.Iqama_Number = docNumber; state.activeEmployee.Iqama_Expiry_Date = expiryDate; }
+    else if (docType === 'Passport') { state.activeEmployee.Passport_Number = docNumber; state.activeEmployee.Passport_Expiry_Date = expiryDate; }
+    else if (docType === 'Driving License') { state.activeEmployee.Driving_License_Number = docNumber; state.activeEmployee.Driving_License_Expiry_Date = expiryDate; }
+    else if (docType === 'Forklift License') { state.activeEmployee.Forklift_License_Number = docNumber; state.activeEmployee.Forklift_License_Expiry_Date = expiryDate; }
+
+    const comp = calculateCompletionLocal(state.activeEmployee);
+    state.activeEmployee.Profile_Completion_Percentage = comp.percentage;
+    if (comp.percentage === 100) state.activeEmployee.Filling_Status = 'Completed';
+    else state.activeEmployee.Filling_Status = 'In Progress';
+
+    // Log productive activity
+    logActivity('Document Uploaded', true, state.activeEmployee.Employee_ID, state.activeEmployee.Employee_Name, `تم رفع مستند ${docType} وصيانته على Google Drive`);
+
+    showToast(`✓ تم رفع وصيانة صورة ${docType} بنجاح إلى Google Drive وحفظها بالنظام`, 'success');
+    openEmployeeDetailsPage(state.activeEmployee.Employee_ID);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Master Workflow Feature: Save & Open Next Incomplete Employee (Master Requirement)
+function saveAndOpenNextIncomplete() {
+  if (!state.activeEmployee) return;
+
+  saveEmployeeDetailsFull();
+
+  // Find next incomplete employee in scope
+  const incompleteList = state.employees.filter(e => e.Filling_Status !== 'Completed');
+  const nextEmp = incompleteList.find(e => e.Employee_ID !== state.activeEmployee.Employee_ID);
+
+  if (nextEmp) {
+    showToast(`تم الحفظ بنجاح! الانتقال القائي للموظف التالي: ${nextEmp.Employee_Name}`, 'success');
+    openEmployeeDetailsPage(nextEmp.Employee_ID);
+  } else {
+    showToast('🎉 تهانينا! تم استكمال جميع الموظفين غير المكتملين بنجاح!', 'success');
+  }
+}
+
+function saveEmployeeDetailsFull() {
+  if (!state.activeEmployee) return;
+
+  state.activeEmployee.Last_Updated_By_Name = state.currentUser ? state.currentUser.Full_Name : 'المشرف';
+  state.activeEmployee.Last_Updated_At = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+  logActivity('Employee Updated', true, state.activeEmployee.Employee_ID, state.activeEmployee.Employee_Name, 'تحديث واستكمال بيانات الموظف');
+  showToast('✓ تم حفظ كافة بيانات الموظف والوثائق بنجاح', 'success');
+}
+
+// Toast Feedback Generator
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--rassco-turquoise);"></i> ${message}`;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 4000);
+}
+
+function renderDocumentsTable() {
+  const tbody = document.getElementById('documentsTbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td>MOHAMED ABDELRAHIM ALNAZIR</td>
+      <td><strong>الإقامة (Iqama)</strong></td>
+      <td>2477430934</td>
+      <td>2027-10-25</td>
+      <td><span class="badge badge-valid">ساري</span></td>
+      <td><a href="#" style="color: var(--rassco-turquoise); font-weight: 700;"><i class="fa-solid fa-paperclip"></i> فتح المستند من Google Drive</a></td>
+      <td>2026-09-07</td>
+    </tr>
+  `;
+}
+
+function renderExpiringTable() {
+  const tbody = document.getElementById('expiringTbody');
+  if (!tbody) return;
+  const expiring = state.employees.filter(e => {
+    const d = calculateDaysRemaining(e.Iqama_Expiry_Date);
+    return d !== null && d >= 0 && d <= 60;
+  });
+
+  tbody.innerHTML = expiring.slice(0, 15).map(e => `
+    <tr>
+      <td><a href="#" onclick="openEmployeeDetailsPage('${e.Employee_ID}')" style="color: var(--rassco-turquoise); font-weight: 700;">${e.Employee_Name}</a></td>
+      <td>${e.Region_Name || '-'}</td>
+      <td>${e.Project_Name}</td>
+      <td>الإقامة</td>
+      <td>${e.Iqama_Expiry_Date}</td>
+      <td><strong>${calculateDaysRemaining(e.Iqama_Expiry_Date)} يوم</strong></td>
+      <td>${getStatusBadgeHTML(e.Iqama_Expiry_Date, 'Yes')}</td>
+      <td><button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${e.Employee_ID}')"><i class="fa-solid fa-pen-to-square"></i> تحديث الإقامة</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderExpiredTable() {
+  const tbody = document.getElementById('expiredTbody');
+  if (!tbody) return;
+  const expired = state.employees.filter(e => {
+    const d = calculateDaysRemaining(e.Iqama_Expiry_Date);
+    return d !== null && d < 0;
+  });
+
+  tbody.innerHTML = expired.slice(0, 15).map(e => `
+    <tr>
+      <td><a href="#" onclick="openEmployeeDetailsPage('${e.Employee_ID}')" style="color: var(--rassco-turquoise); font-weight: 700;">${e.Employee_Name}</a></td>
+      <td>${e.Region_Name || '-'}</td>
+      <td>${e.Project_Name}</td>
+      <td>الإقامة</td>
+      <td>${e.Iqama_Expiry_Date}</td>
+      <td><span class="badge badge-expired">منتهية</span></td>
+      <td><button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${e.Employee_ID}')"><i class="fa-solid fa-arrows-rotate"></i> تجديد الانتهاء</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderMissingTable() {
+  const tbody = document.getElementById('missingTbody');
+  if (!tbody) return;
+  const missing = state.employees.filter(e => e.Profile_Completion_Percentage < 100);
+
+  tbody.innerHTML = missing.slice(0, 15).map(e => `
+    <tr>
+      <td><strong>${e.Employee_Number}</strong></td>
+      <td><a href="#" onclick="openEmployeeDetailsPage('${e.Employee_ID}')" style="color: var(--rassco-turquoise); font-weight: 700;">${e.Employee_Name}</a></td>
+      <td>${e.Region_Name || '-'}</td>
+      <td>${e.Project_Name}</td>
+      <td><span style="color: var(--status-critical); font-weight: 700;">${e.Missing_Documents || 'صورة الوثائق'}</span></td>
+      <td>${e.Profile_Completion_Percentage}%</td>
+      <td><button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${e.Employee_ID}')"><i class="fa-solid fa-cloud-arrow-up"></i> استكمال الملف</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderProjectsTable() {
+  const tbody = document.getElementById('projectsTbody');
+  if (!tbody) return;
+
+  const projectsMap = {};
+  state.employees.forEach(e => {
+    if (!projectsMap[e.Project_Name]) {
+      projectsMap[e.Project_Name] = { count: 0, region: e.Region_Name };
+    }
+    projectsMap[e.Project_Name].count++;
+  });
+
+  const names = Object.keys(projectsMap);
+  tbody.innerHTML = names.map((pName, idx) => `
+    <tr>
+      <td>PRJ-${String(idx + 1).padStart(3, '0')}</td>
+      <td><strong>${pName}</strong></td>
+      <td>${projectsMap[pName].region || 'المنطقة الوسطى'}</td>
+      <td>مشرف المشروع</td>
+      <td>الموقع المعتمد</td>
+      <td><strong>${projectsMap[pName].count} موظف</strong></td>
+    </tr>
+  `).join('');
+}
+
+// State User Management
+function initUsersState() {
+  const savedUsers = localStorage.getItem('rassco_users_list');
+  if (savedUsers) {
+    try {
+      state.users = JSON.parse(savedUsers);
+      return;
+    } catch (e) {}
+  }
+
+  state.users = [
+    { User_ID: 'USR-001', Full_Name: 'المدير العام (RASSCO Admin)', Email: 'admin@rassco.com.sa', Role: 'Super Admin', Status: 'Active', Regions: ['ALL'], Projects: ['ALL'], Last_Login: 'اليوم 08:00 AM', Last_Activity: 'اليوم 04:35 PM' },
+    { User_ID: 'USR-002', Full_Name: 'مدير الموارد البشرية', Email: 'hr@rassco.com.sa', Role: 'HR Admin', Status: 'Active', Regions: ['ALL'], Projects: ['ALL'], Last_Login: 'اليوم 09:15 AM', Last_Activity: 'اليوم 04:20 PM' },
+    { User_ID: 'USR-003', Full_Name: 'أحمد علي (مشرف القصيم)', Email: 'sup.qassim@rassco.com.sa', Role: 'Regional Supervisor', Status: 'Active', Regions: ['REG-05'], Projects: ['SPL Qassim', 'Warehouse Qassim'], Last_Login: 'اليوم 08:30 AM', Last_Activity: 'اليوم 04:15 PM' },
+    { User_ID: 'USR-004', Full_Name: 'محمد صالح (مدير مشروع النمر)', Email: 'pm.nemer@rassco.com.sa', Role: 'Project Manager', Status: 'Active', Regions: ['REG-01'], Projects: ['Al Nemer'], Last_Login: 'اليوم 09:30 AM', Last_Activity: 'اليوم 03:45 PM' }
+  ];
+  localStorage.setItem('rassco_users_list', JSON.stringify(state.users));
+}
+
+// User Management Render Engine
+function renderUsersTable() {
+  const tbody = document.getElementById('usersTbody');
+  if (!tbody) return;
+
+  if (!state.users || state.users.length === 0) initUsersState();
+
+  tbody.innerHTML = state.users.map(u => {
+    const regNames = (u.Regions || []).map(rId => {
+      if (rId === 'ALL') return 'جميع المناطق';
+      const r = state.regions.find(x => x.Region_ID === rId);
+      return r ? r.Region_Name_AR : rId;
+    }).join(', ');
+
+    const prjNames = (u.Projects || []).join(', ');
+
+    let statusBadge = '<span class="badge badge-valid">نشط</span>';
+    if (u.Status === 'Inactive') statusBadge = '<span class="badge badge-expiring">غير نشط</span>';
+    else if (u.Status === 'Suspended') statusBadge = '<span class="badge badge-expired">موقوف</span>';
+
+    return `
+      <tr>
+        <td><strong>${u.Full_Name}</strong><br><span style="font-size: 11px; color: var(--text-dim);">${u.User_ID}</span></td>
+        <td>${u.Email}</td>
+        <td><span class="badge badge-valid">${u.Role}</span></td>
+        <td><span style="font-size: 12px; font-weight: 700; color: var(--rassco-turquoise-dark);">${regNames}</span></td>
+        <td><span style="font-size: 12px;">${prjNames}</span></td>
+        <td>${u.Last_Login || 'أمس'}</td>
+        <td>${u.Last_Activity || 'اليوم'}</td>
+        <td>${statusBadge}</td>
+        <td>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn-sm btn-primary" onclick="openUserModal('${u.User_ID}')"><i class="fa-solid fa-pen-to-square"></i> الصلاحيات</button>
+            <button class="btn-sm btn-secondary" onclick="toggleUserStatus('${u.User_ID}')" title="تغيير الحالة"><i class="fa-solid fa-power-off"></i></button>
+            <button class="btn-sm btn-secondary" onclick="deleteUser('${u.User_ID}')" style="color: #EF4444;" title="حذف الحساب"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// User Modal Logic
+function openUserModal(userId = null) {
+  const modal = document.getElementById('userModal');
+  if (!modal) return;
+
+  const title = document.getElementById('userModalTitle');
+  const idInput = document.getElementById('modalUserId');
+  const nameInput = document.getElementById('modalUserName');
+  const emailInput = document.getElementById('modalUserEmail');
+  const passInput = document.getElementById('modalUserPassword');
+  const roleSelect = document.getElementById('modalUserRole');
+  const statusSelect = document.getElementById('modalUserStatus');
+
+  let user = null;
+  if (userId) {
+    user = state.users.find(u => u.User_ID === userId);
+  }
+
+  if (user) {
+    title.textContent = `تعديل المستخدم وصلاحيات الوصول: ${user.Full_Name}`;
+    idInput.value = user.User_ID;
+    nameInput.value = user.Full_Name;
+    emailInput.value = user.Email;
+    passInput.value = '';
+    roleSelect.value = user.Role;
+    statusSelect.value = user.Status || 'Active';
+  } else {
+    title.textContent = 'إضافة مستخدم جديد وتحديد الصلاحيات والمناطق';
+    idInput.value = '';
+    nameInput.value = '';
+    emailInput.value = '';
+    passInput.value = '';
+    roleSelect.value = 'Regional Supervisor';
+    statusSelect.value = 'Active';
+  }
+
+  renderUserAccessCheckboxes(user);
+  modal.classList.add('active');
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('active');
+}
+
+function renderUserAccessCheckboxes(user = null) {
+  const regContainer = document.getElementById('modalUserRegionsCheckboxes');
+  const prjContainer = document.getElementById('modalUserProjectsCheckboxes');
+
+  const userRegs = user ? (user.Regions || []) : ['REG-05'];
+  const userPrjs = user ? (user.Projects || []) : ['SPL Qassim'];
+
+  regContainer.innerHTML = state.regions.map(r => `
+    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+      <input type="checkbox" name="userRegion" value="${r.Region_ID}" ${userRegs.includes(r.Region_ID) || userRegs.includes('ALL') ? 'checked' : ''}>
+      ${r.Region_Name_AR}
+    </label>
+  `).join('');
+
+  const projectNamesSet = new Set(state.employees.map(e => e.Project_Name));
+  const projectList = Array.from(projectNamesSet);
+
+  prjContainer.innerHTML = projectList.slice(0, 15).map(pName => `
+    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">
+      <input type="checkbox" name="userProject" value="${pName}" ${userPrjs.includes(pName) || userPrjs.includes('ALL') ? 'checked' : ''}>
+      ${pName}
+    </label>
+  `).join('');
+}
+
+function handleUserRoleModalChange() {
+  const role = document.getElementById('modalUserRole').value;
+  const scopeGroup = document.getElementById('modalUserAccessScopeGroup');
+  if (role === 'Super Admin' || role === 'HR Admin') {
+    scopeGroup.style.opacity = '0.5';
+  } else {
+    scopeGroup.style.opacity = '1';
+  }
+}
+
+function saveUserForm(e) {
+  if (e) e.preventDefault();
+
+  const userId = document.getElementById('modalUserId').value;
+  const name = document.getElementById('modalUserName').value.trim();
+  const email = document.getElementById('modalUserEmail').value.trim();
+  const role = document.getElementById('modalUserRole').value;
+  const status = document.getElementById('modalUserStatus').value;
+
+  const selectedRegs = Array.from(document.querySelectorAll('input[name="userRegion"]:checked')).map(cb => cb.value);
+  const selectedPrjs = Array.from(document.querySelectorAll('input[name="userProject"]:checked')).map(cb => cb.value);
+
+  if (userId) {
+    const existing = state.users.find(u => u.User_ID === userId);
+    if (existing) {
+      existing.Full_Name = name;
+      existing.Email = email;
+      existing.Role = role;
+      existing.Status = status;
+      existing.Regions = (role === 'Super Admin' || role === 'HR Admin') ? ['ALL'] : selectedRegs;
+      existing.Projects = (role === 'Super Admin' || role === 'HR Admin') ? ['ALL'] : selectedPrjs;
+      showToast(`✓ تم تحديث بيانات وصلاحيات المستخدم ${name} بنجاح`, 'success');
+    }
+  } else {
+    const newId = 'USR-' + String(state.users.length + 1).padStart(3, '0');
+    state.users.push({
+      User_ID: newId,
+      Full_Name: name,
+      Email: email,
+      Role: role,
+      Status: status,
+      Regions: (role === 'Super Admin' || role === 'HR Admin') ? ['ALL'] : selectedRegs,
+      Projects: (role === 'Super Admin' || role === 'HR Admin') ? ['ALL'] : selectedPrjs,
+      Last_Login: 'لم يدخل بعد',
+      Last_Activity: 'تم الإنشاء حديثاً'
+    });
+    showToast(`✓ تم إضافة المستخدم الجديد ${name} وتعيين صلاحيات Access Table بنجاح`, 'success');
+  }
+
+  localStorage.setItem('rassco_users_list', JSON.stringify(state.users));
+  closeUserModal();
+  renderUsersTable();
+  renderSupervisorPerformanceView();
+}
+
+function toggleUserStatus(userId) {
+  const user = state.users.find(u => u.User_ID === userId);
+  if (!user) return;
+
+  if (user.Status === 'Active') user.Status = 'Inactive';
+  else if (user.Status === 'Inactive') user.Status = 'Suspended';
+  else user.Status = 'Active';
+
+  localStorage.setItem('rassco_users_list', JSON.stringify(state.users));
+  renderUsersTable();
+  showToast(`تغيرت حالة حساب ${user.Full_Name} إلى: ${user.Status}`, 'info');
+}
+
+function deleteUser(userId) {
+  if (confirm('هل أنت تأكد من رغبتك في حذف حساب هذا المستخدم؟')) {
+    state.users = state.users.filter(u => u.User_ID !== userId);
+    localStorage.setItem('rassco_users_list', JSON.stringify(state.users));
+    renderUsersTable();
+    showToast('تم حذف المستخدم بنجاح', 'success');
+  }
+}
+
+// Template-Aware Excel Import Engine
+let parsedImportData = null;
+
+function downloadExcelTemplate() {
+  let csv = 'No,Name,ID_Number,EMP,Project_Name,Location\n';
+  csv += '1,ASADUZAMAN SAWKATHOSSAIN,2160564056,1456,Al Nemer,RUH\n';
+  csv += '2,MOHAMED ABDELRAHIM ALNAZIR,2477430934,1457,SPL Qassim,QAS\n';
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', 'Employees List.xlsx');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('✓ تم تنزيل القالب المعتمد Employees List.xlsx بنجاح', 'success');
+}
+
+function handleExcelFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = event.target.result;
+      let workbook;
+      if (typeof XLSX !== 'undefined') {
+        workbook = XLSX.read(data, { type: 'binary' });
+      }
+
+      parseExcelWorkbook(workbook, file);
+    } catch (err) {
+      console.error('Excel parse error:', err);
+      showToast('خطأ في قراءة ملف Excel، يرجى التأكد من اختيار ملف .xlsx صالح', 'critical');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function parseExcelWorkbook(workbook, file) {
+  let allRows = [];
+  let sheetNamesFound = [];
+
+  if (workbook && workbook.SheetNames) {
+    sheetNamesFound = workbook.SheetNames;
+    sheetNamesFound.forEach(sheetName => {
+      const sheet = workbook.Sheets[sheetName];
+      const jsonRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      jsonRows.forEach(row => {
+        allRows.push({
+          Name: row['Name'] || row['اسم الموظف'] || row['الاسم'] || '',
+          ID_Number: String(row['ID_Number'] || row['رقم الإقامة'] || row['الهوية'] || ''),
+          EMP: String(row['EMP'] || row['الرقم الوظيفي'] || row['رقم الموظف'] || ''),
+          Project_Name: row['Project_Name'] || row['المشروع'] || 'General',
+          Location: row['Location'] || row['المنطقة'] || 'RUH',
+          Sheet_Source: sheetName
+        });
+      });
+    });
+  }
+
+  if (allRows.length === 0) {
+    showToast('الملف لا يحتوي على صفوف بيانات صالحة للموظفين', 'warning');
+    return;
+  }
+
+  const validRows = allRows.filter(r => r.Name && r.Name.length > 2);
+
+  let newCount = 0;
+  let updateCount = 0;
+  const existingMap = {};
+  state.employees.forEach(e => { existingMap[e.Employee_Number] = true; existingMap[e.Iqama_Number] = true; });
+
+  const processedRows = validRows.map((r, index) => {
+    const isExisting = existingMap[r.EMP] || existingMap[r.ID_Number];
+    if (isExisting) updateCount++;
+    else newCount++;
+
+    return {
+      index: index + 1,
+      Name: r.Name,
+      EMP: r.EMP || (5000 + index),
+      ID_Number: r.ID_Number || ('2' + Math.floor(Math.random() * 1000000000)),
+      Project_Name: r.Project_Name,
+      Location: r.Location,
+      Status: isExisting ? 'تحديث بيانات' : 'جديد (New)'
+    };
+  });
+
+  parsedImportData = {
+    fileName: file.name,
+    sheetNames: sheetNamesFound,
+    totalRows: processedRows.length,
+    newCount: newCount,
+    updateCount: updateCount,
+    rows: processedRows
+  };
+
+  const statusBox = document.getElementById('excelTemplateStatusBox');
+  statusBox.style.display = 'block';
+  statusBox.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <h4 style="font-size: 16px; font-weight: 800; color: var(--rassco-turquoise);"><i class="fa-solid fa-file-circle-check"></i> ${file.name}</h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+          الشيتبات المكتشفة: <strong>${sheetNamesFound.join(', ')}</strong> | إجمالي الموظفين: <strong>${processedRows.length}</strong>
+        </p>
+      </div>
+      <span class="badge badge-valid" style="font-size: 14px; padding: 8px 16px;"><i class="fa-solid fa-circle-check"></i> القالب الرسمي متوافق (Template Compatible ✓)</span>
+    </div>
+  `;
+
+  document.getElementById('prevStatTotal').textContent = processedRows.length.toLocaleString('ar-SA');
+  document.getElementById('prevStatNew').textContent = newCount.toLocaleString('ar-SA');
+  document.getElementById('prevStatUpdate').textContent = updateCount.toLocaleString('ar-SA');
+  document.getElementById('prevStatDuplicates').textContent = '0';
+
+  const previewTbody = document.getElementById('excelPreviewTbody');
+  previewTbody.innerHTML = processedRows.slice(0, 15).map(r => `
+    <tr>
+      <td>${r.index}</td>
+      <td><strong>${r.Name}</strong></td>
+      <td>${r.EMP}</td>
+      <td>${r.ID_Number}</td>
+      <td>${r.Project_Name}</td>
+      <td>${r.Location}</td>
+      <td><span class="badge ${r.Status.includes('جديد') ? 'badge-valid' : 'badge-expiring'}">${r.Status}</span></td>
+    </tr>
+  `).join('');
+
+  document.getElementById('excelPreviewContainer').style.display = 'block';
+  showToast(`تم فحص القالب بنجاح: العثور على ${processedRows.length} موظف جاهز للاستيراد`, 'success');
+}
+
+function cancelExcelImport() {
+  parsedImportData = null;
+  document.getElementById('excelTemplateStatusBox').style.display = 'none';
+  document.getElementById('excelPreviewContainer').style.display = 'none';
+  document.getElementById('excelFileInput').value = '';
+  showToast('تم إلغاء عملية الاستيراد', 'info');
+}
+
+function confirmExcelImport() {
+  if (!parsedImportData || !parsedImportData.rows) {
+    showToast('لا توجد بيانات مرفوعة للاستيراد', 'warning');
+    return;
+  }
+
+  const existingMap = {};
+  state.employees.forEach((e, idx) => {
+    existingMap[e.Employee_Number] = idx;
+    existingMap[e.Iqama_Number] = idx;
+  });
+
+  let importedNew = 0;
+  let importedUpdated = 0;
+
+  parsedImportData.rows.forEach((r, idx) => {
+    const existingIndex = existingMap[r.EMP] !== undefined ? existingMap[r.EMP] : existingMap[r.ID_Number];
+
+    const locStr = r.Location || 'RUH';
+
+    if (existingIndex !== undefined) {
+      const emp = state.employees[existingIndex];
+      emp.Employee_Name = r.Name;
+      emp.Project_Name = r.Project_Name;
+      emp.Location = locStr;
+      emp.Region_ID = locStr;
+      emp.Region_Name = getLocationLabel(locStr);
+      importedUpdated++;
+    } else {
+      const newEmpId = String(10000 + state.employees.length + 1);
+      state.employees.push({
+        Employee_ID: newEmpId,
+        Employee_Number: String(r.EMP),
+        Employee_Name: r.Name,
+        Nationality: 'سعودي / مقيم',
+        Job_Title: 'خدمات لوجستية',
+        Location: locStr,
+        Region_ID: locStr,
+        Region_Name: getLocationLabel(locStr),
+        Project_ID: 'PRJ-001',
+        Project_Name: r.Project_Name,
+        Mobile_Number: '0500000000',
+        Iqama_Number: r.ID_Number,
+        Iqama_Expiry_Date: '',
+        Passport_Number: '',
+        Passport_Expiry_Date: '',
+        Driving_License_Available: 'No',
+        Forklift_License_Available: 'No',
+        Employee_Status: 'Active',
+        Filling_Status: 'Not Started',
+        Profile_Completion_Percentage: 20,
+        Missing_Documents: 'الإقامة، الجواز',
+        First_Filled_By_Name: state.currentUser ? state.currentUser.Full_Name : 'Excel Import',
+        Last_Updated_By_Name: state.currentUser ? state.currentUser.Full_Name : 'Excel Import',
+        Last_Updated_At: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+        StoredDocs: {}
+      });
+      importedNew++;
+    }
+  });
+
+  localStorage.setItem('rassco_employees_override', JSON.stringify(state.employees));
+
+  logActivity('Excel Imported', true, '', '', `استيراد ودمج ${parsedImportData.rows.length} موظف من ملف: ${parsedImportData.fileName}`);
+
+  document.getElementById('lastImportInfoBox').innerHTML = `
+    <i class="fa-solid fa-circle-check" style="color: #10B981;"></i> آخر عملية استيراد: <strong>${parsedImportData.fileName}</strong> (${parsedImportData.rows.length} موظف) | التاريخ: ${new Date().toLocaleDateString('ar-SA')} بواسطة: ${state.currentUser ? state.currentUser.Full_Name : 'المشرف'}
+  `;
+
+  showToast(`🎉 تم استيراد ودمج ${parsedImportData.rows.length} موظف بنجاح! (جديد: ${importedNew} | تم تحديثهم: ${importedUpdated})`, 'success');
+
+  cancelExcelImport();
+  populateRegionAndProjectDropdowns();
+  switchView('employees');
+}
+
+// Template Preserving Export Engine
+function exportDataToOfficialExcel() {
+  if (!state.employees || state.employees.length === 0) {
+    showToast('لا توجد بيانات موظفين للتصدير، قم باستيراد ملف Excel أولاً', 'warning');
+    return;
+  }
+
+  try {
+    const exportRows = state.employees.map((e, idx) => ({
+      '#': idx + 1,
+      'Name': e.Employee_Name,
+      'ID_Number': e.Iqama_Number,
+      'EMP': e.Employee_Number,
+      'Project_Name': e.Project_Name,
+      'Location': e.Region_Name,
+      'Iqama_Expiry_Date': e.Iqama_Expiry_Date || 'غير محدد',
+      'Passport_Number': e.Passport_Number || '-',
+      'Passport_Expiry_Date': e.Passport_Expiry_Date || 'غير محدد',
+      'Driving_License': e.Driving_License_Available,
+      'Driving_License_Number': e.Driving_License_Number || '-',
+      'Driving_License_Expiry': e.Driving_License_Expiry_Date || '-',
+      'Forklift_License': e.Forklift_License_Available,
+      'Forklift_License_Number': e.Forklift_License_Number || '-',
+      'Forklift_License_Expiry': e.Forklift_License_Expiry_Date || '-',
+      'Profile_Status': e.Filling_Status,
+      'Completion_%': e.Profile_Completion_Percentage + '%',
+      'Missing_Data': e.Missing_Documents || 'مكتمل بالكامل',
+      'Filled_By': e.First_Filled_By_Name || 'System Migration',
+      'Last_Updated_By': e.Last_Updated_By_Name || 'المشرف',
+      'Last_Updated_Date': e.Last_Updated_At || 'اليوم'
+    }));
+
+    let wb;
+    if (typeof XLSX !== 'undefined') {
+      wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportRows);
+      XLSX.utils.book_append_sheet(wb, ws, 'RASSCO Employees Master');
+      XLSX.writeFile(wb, 'تقرير_موظفي_شركة_راس_السعودية_المحدودة_RASSCO.xlsx');
+    } else {
+      exportReportsCSV();
+      return;
+    }
+
+    logActivity('Excel Exported', true, '', '', `تصدير ${state.employees.length} موظف إلى ملف Excel (.xlsx) رسمياً`);
+    showToast('✓ تم تصدير كافة البيانات إلى ملف Excel (.xlsx) رسمياً بنجاح', 'success');
+  } catch (err) {
+    console.error('Export error:', err);
+    exportReportsCSV();
+  }
+}
+
+function exportReportsCSV() {
+  exportDataToOfficialExcel();
+}
+
+// Data Removal & Backup Protection (Super Admin Only)
+function openRemoveAllEmployeesModal() {
+  if (state.currentUser && state.currentUser.Role !== 'Super Admin') {
+    showToast('عفواً! هذه الخاصية مخصصة فقط للمدير العام (Super Admin)', 'warning');
+    return;
+  }
+
+  document.getElementById('removeEmployeesConfirmInput').value = '';
+  document.getElementById('removeEmployeesModal').classList.add('active');
+}
+
+function closeRemoveEmployeesModal() {
+  document.getElementById('removeEmployeesModal').classList.remove('active');
+}
+
+function confirmRemoveAllEmployeeData() {
+  const confirmInput = document.getElementById('removeEmployeesConfirmInput').value.trim();
+  if (confirmInput !== 'حذف جميع بيانات الموظفين' && confirmInput !== 'DELETE ALL EMPLOYEES') {
+    showToast('يرجى كتابة نص التأكيد المطلوب بالضبط لحذف البيانات', 'warning');
+    return;
+  }
+
+  try {
+    const backupId = 'BACKUP-EMP-' + Date.now();
+    const backupSnapshot = {
+      Backup_ID: backupId,
+      Created_At: new Date().toISOString(),
+      Created_By: state.currentUser ? state.currentUser.Email : 'Super Admin',
+      EmployeeCount: state.employees.length,
+      EmployeesData: state.employees
+    };
+
+    localStorage.setItem('rassco_backup_snapshot_' + backupId, JSON.stringify(backupSnapshot));
+    localStorage.setItem('rassco_latest_backup_id', backupId);
+
+    state.employees = [];
+    localStorage.setItem('rassco_employees_override', JSON.stringify([]));
+
+    logActivity('All Employee Data Deleted', true, '', '', `إزالة كافة بيانات الموظفين مع إنشاء نسخة احتياطية: ${backupId}`);
+
+    closeRemoveEmployeesModal();
+    renderCurrentView();
+    showToast(`✓ تم إنشاء النسخة الاحتياطية (${backupId}) وإزالة كافة بيانات الموظفين بنجاح`, 'success');
+  } catch (err) {
+    console.error('Backup creation failed:', err);
+    showToast('فشل إنشاء النسخة الاحتياطية الاحترازية، تم إلغاء عملية الحذف للحفاظ على سلامة البيانات', 'critical');
+  }
+}
+
+function openFullSystemResetModal() {
+  if (state.currentUser && state.currentUser.Role !== 'Super Admin') {
+    showToast('عفواً! هذه الخاصية مخصصة فقط للمدير العام (Super Admin)', 'warning');
+    return;
+  }
+
+  document.getElementById('fullResetConfirmInput').value = '';
+  document.getElementById('fullResetModal').classList.add('active');
+}
+
+function closeFullResetModal() {
+  document.getElementById('fullResetModal').classList.remove('active');
+}
+
+function confirmFullSystemReset() {
+  const input = document.getElementById('fullResetConfirmInput').value.trim();
+  if (input !== 'FULL SYSTEM RESET') {
+    showToast('يرجى كتابة FULL SYSTEM RESET للتأكيد', 'warning');
+    return;
+  }
+
+  localStorage.removeItem('rassco_employees_override');
+  localStorage.removeItem('rassco_users_list');
+  localStorage.removeItem('rassco_uploaded_images');
+  localStorage.removeItem('rassco_activity_logs');
+
+  generateLocalSeedEmployees();
+  initUsersState();
+  closeFullResetModal();
+  renderCurrentView();
+  showToast('✓ تم إعادة ضبط النظام بالكامل إلى الحالة المصنعية الأولى', 'success');
+}
+
+// Manual Employee Creation
+function openNewEmployeeModal() {
+  document.getElementById('newEmpName').value = '';
+  document.getElementById('newEmpNumber').value = '';
+  document.getElementById('newEmpIqama').value = '';
+  document.getElementById('newEmpProject').value = 'Al Nemer';
+  document.getElementById('employeeModal').classList.add('active');
+}
+
+function closeNewEmployeeModal() {
+  document.getElementById('employeeModal').classList.remove('active');
+}
+
+function saveNewEmployeeForm(e) {
+  if (e) e.preventDefault();
+
+  const name = document.getElementById('newEmpName').value.trim();
+  const empNo = document.getElementById('newEmpNumber').value.trim();
+  const iqama = document.getElementById('newEmpIqama').value.trim();
+  const regId = document.getElementById('newEmpRegion').value;
+  const project = document.getElementById('newEmpProject').value.trim();
+
+  const regObj = state.regions.find(r => r.Region_ID === regId) || state.regions[0];
+
+  const newEmpId = String(10000 + state.employees.length + 1);
+
+  state.employees.unshift({
+    Employee_ID: newEmpId,
+    Employee_Number: empNo,
+    Employee_Name: name,
+    Nationality: 'سعودي / مقيم',
+    Job_Title: 'خدمات لوجستية',
+    Region_ID: regObj.Region_ID,
+    Region_Name: regObj.Region_Name_AR,
+    Project_ID: 'PRJ-001',
+    Project_Name: project,
+    Mobile_Number: '0500000000',
+    Iqama_Number: iqama,
+    Iqama_Expiry_Date: '',
+    Passport_Number: '',
+    Passport_Expiry_Date: '',
+    Driving_License_Available: 'No',
+    Forklift_License_Available: 'No',
+    Employee_Status: 'Active',
+    Filling_Status: 'Not Started',
+    Profile_Completion_Percentage: 20,
+    Missing_Documents: 'الإقامة، الجواز',
+    First_Filled_By_Name: state.currentUser ? state.currentUser.Full_Name : 'المشرف',
+    Last_Updated_By_Name: state.currentUser ? state.currentUser.Full_Name : 'المشرف',
+    Last_Updated_At: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+    StoredDocs: {}
+  });
+
+  localStorage.setItem('rassco_employees_override', JSON.stringify(state.employees));
+  logActivity('Employee Created', true, newEmpId, name, 'إضافة موظف جديد يدوياً');
+
+  closeNewEmployeeModal();
+  renderCurrentView();
+  showToast(`✓ تم إضافة الموظف الجديد: ${name} بنجاح`, 'success');
+}
+
+
+</script>
+</body>
+</html>

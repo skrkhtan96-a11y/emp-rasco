@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+*.log
+credentials/
+service-account*.json
+*.pem
+*.key
+.DS_Store
+dist/
+scratch/
+test_*.js
+*.png
+!web/assets/*.png

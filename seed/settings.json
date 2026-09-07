@@ -1,0 +1,27 @@
+[
+  {
+    "Setting_Key": "Company_Name_AR",
+    "Setting_Value": "شركة راس السعودية المحدودة",
+    "Description": "اسم الشركة بالعربية"
+  },
+  {
+    "Setting_Key": "Company_Name_EN",
+    "Setting_Value": "RAS SAUDI COMPANY LTD (RASSCO)",
+    "Description": "اسم الشركة بالإنجليزية"
+  },
+  {
+    "Setting_Key": "Drive_Root_Folder_ID",
+    "Setting_Value": "",
+    "Description": "معرف مجلد Google Drive الرئيسي للوثائق"
+  },
+  {
+    "Setting_Key": "Allowed_File_Types",
+    "Setting_Value": "PDF,JPG,JPEG,PNG",
+    "Description": "أنواع الملفات المسموح بها"
+  },
+  {
+    "Setting_Key": "Max_File_Size_MB",
+    "Setting_Value": "10",
+    "Description": "الحد الأقصى لحجم الملف بالميجابايت"
+  }
+]
