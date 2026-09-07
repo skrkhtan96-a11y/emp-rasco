@@ -162,34 +162,39 @@ async function initDb(forceRefresh = false) {
     }
 
     try {
+      const [empRes, docRes, userRes, notifRes, actRes] = await Promise.all([
+        getSheetRows('Employees'),
+        getSheetRows('Employee_Documents'),
+        getSheetRows('Users'),
+        getSheetRows('Notifications'),
+        getSheetRows('Activity_Log')
+      ]);
+
       // 1. Employees
-      const empRes = await getSheetRows('Employees');
       if (empRes.rows && empRes.rows.length > 1) {
         const headers = empRes.rows[0];
         memoryCache.employees = empRes.rows.slice(1).map(r => mapRowToObject(headers, r));
       } else {
         memoryCache.employees = [];
-        await appendSheetRow('Employees', SCHEMAS.Employees);
+        appendSheetRow('Employees', SCHEMAS.Employees).catch(e => console.error(e));
         if (process.env.SEED_SCALE_TEST === 'true') {
           const scaleEmps = generate1600ScaleDataset();
           memoryCache.employees = scaleEmps;
           for (let i = 0; i < Math.min(10, scaleEmps.length); i++) {
-            await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, scaleEmps[i]));
+            appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, scaleEmps[i])).catch(e => console.error(e));
           }
         }
       }
 
       // 2. Documents
-      const docRes = await getSheetRows('Employee_Documents');
       if (docRes.rows && docRes.rows.length > 1) {
         const headers = docRes.rows[0];
         memoryCache.documents = docRes.rows.slice(1).map(r => mapRowToObject(headers, r));
       } else {
-        await appendSheetRow('Employee_Documents', SCHEMAS.Employee_Documents);
+        appendSheetRow('Employee_Documents', SCHEMAS.Employee_Documents).catch(e => console.error(e));
       }
 
       // 3. Users
-      const userRes = await getSheetRows('Users');
       if (userRes.rows && userRes.rows.length > 1) {
         const headers = userRes.rows[0];
         memoryCache.users = userRes.rows.slice(1).map(r => mapRowToObject(headers, r));
@@ -230,28 +235,26 @@ async function initDb(forceRefresh = false) {
           }
         ];
         memoryCache.users = defaultUsers;
-        await appendSheetRow('Users', SCHEMAS.Users);
+        appendSheetRow('Users', SCHEMAS.Users).catch(e => console.error(e));
         for (const u of defaultUsers) {
-          await appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, u));
+          appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, u)).catch(e => console.error(e));
         }
       }
 
       // 4. Notifications
-      const notifRes = await getSheetRows('Notifications');
       if (notifRes.rows && notifRes.rows.length > 1) {
         const headers = notifRes.rows[0];
         memoryCache.notifications = notifRes.rows.slice(1).map(r => mapRowToObject(headers, r));
       } else {
-        await appendSheetRow('Notifications', SCHEMAS.Notifications);
+        appendSheetRow('Notifications', SCHEMAS.Notifications).catch(e => console.error(e));
       }
 
       // 5. Activity Log
-      const actRes = await getSheetRows('Activity_Log');
       if (actRes.rows && actRes.rows.length > 1) {
         const headers = actRes.rows[0];
         memoryCache.activityLogs = actRes.rows.slice(1).map(r => mapRowToObject(headers, r));
       } else {
-        await appendSheetRow('Activity_Log', SCHEMAS.Activity_Log);
+        appendSheetRow('Activity_Log', SCHEMAS.Activity_Log).catch(e => console.error(e));
       }
 
       isInitialized = true;
