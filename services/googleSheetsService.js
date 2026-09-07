@@ -17,10 +17,34 @@ function withTimeout(promise, timeoutMs = 5000, fallbackValue = null) {
 function initSheetsClient() {
   if (sheetsClient) return sheetsClient;
 
+  const isStrictLive = process.env.GOOGLE_MODE === 'LIVE' || process.env.REQUIRE_LIVE_GOOGLE === 'true';
+
+  // 1. Prefer Service Account Credentials (Direct JWT Authentication)
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+
+  if (clientEmail && privateKey) {
+    try {
+      privateKey = privateKey.replace(/\\n/g, '\n');
+      const auth = new google.auth.GoogleAuth({
+        credentials: {
+          client_email: clientEmail,
+          private_key: privateKey
+        },
+        scopes: ['https://www.googleapis.com/auth/spreadsheets']
+      });
+      sheetsClient = google.sheets({ version: 'v4', auth });
+      console.log('✓ Google Sheets API Service Account Client Initialized');
+      return sheetsClient;
+    } catch (err) {
+      console.error('❌ Service Account Sheets Auth Error:', err.message);
+    }
+  }
+
+  // 2. OAuth2 Fallback
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
   const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
-  const isStrictLive = process.env.GOOGLE_MODE === 'LIVE' || process.env.REQUIRE_LIVE_GOOGLE === 'true';
 
   if (clientId && clientSecret && refreshToken) {
     try {
@@ -36,39 +60,12 @@ function initSheetsClient() {
       console.log('✓ Google Sheets API OAuth2 User Client Initialized');
       return sheetsClient;
     } catch (err) {
-      if (isStrictLive) {
-        throw new Error(`GOOGLE SHEETS OAUTH2 AUTH FAIL: ${err.message}`);
-      }
       console.error('❌ Google Sheets OAuth2 Client Error:', err.message);
     }
   }
 
-  // Service Account JWT Fallback
-  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
-
-  if (clientEmail && privateKey) {
-    try {
-      privateKey = privateKey.replace(/\\n/g, '\n');
-      const auth = new google.auth.GoogleAuth({
-        credentials: {
-          client_email: clientEmail,
-          private_key: privateKey
-        },
-        scopes: ['https://www.googleapis.com/auth/spreadsheets']
-      });
-      sheetsClient = google.sheets({ version: 'v4', auth });
-      console.log('✓ Google Sheets API Service Account Client Initialized (Fallback)');
-      return sheetsClient;
-    } catch (err) {
-      if (isStrictLive) {
-        throw new Error(`GOOGLE AUTH FAIL: Failed to initialize Google Sheets client: ${err.message}`);
-      }
-    }
-  }
-
   if (isStrictLive) {
-    throw new Error('GOOGLE AUTH FAIL: OAuth2 or Service Account credentials missing in process.env');
+    throw new Error('GOOGLE AUTH FAIL: Service Account or OAuth2 credentials missing in process.env');
   }
   return null;
 }
