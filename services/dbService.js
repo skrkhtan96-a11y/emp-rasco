@@ -402,11 +402,11 @@ async function saveEmployee(empData) {
 
     if (idx !== -1) {
       memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
-      await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, memoryCache.employees[idx]));
+      appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, memoryCache.employees[idx])).catch(err => console.error('Sheet append error:', err.message));
       return memoryCache.employees[idx];
     } else {
       memoryCache.employees.push(emp);
-      await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp));
+      appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp)).catch(err => console.error('Sheet append error:', err.message));
       return emp;
     }
   });
@@ -425,7 +425,7 @@ async function updateEmployee(id, updateData) {
     };
 
     memoryCache.employees[idx] = updated;
-    await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, updated));
+    appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, updated)).catch(err => console.error('Sheet append error:', err.message));
     return updated;
   });
 }

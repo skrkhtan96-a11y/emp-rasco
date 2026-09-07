@@ -99,10 +99,15 @@ async function getOrCreateSpreadsheet(sheets) {
   return cachedSpreadsheetId;
 }
 
+const verifiedTabs = new Set();
+
 /**
- * Ensure sheet tab exists
+ * Ensure sheet tab exists (Cached per server lifecycle)
  */
 async function ensureSheetTabExists(sheets, spreadsheetId, sheetName) {
+  const cacheKey = `${spreadsheetId}_${sheetName}`;
+  if (verifiedTabs.has(cacheKey)) return;
+
   try {
     const meta = await sheets.spreadsheets.get({ spreadsheetId });
     const exists = meta.data.sheets.some(s => s.properties.title === sheetName);
@@ -116,6 +121,7 @@ async function ensureSheetTabExists(sheets, spreadsheetId, sheetName) {
         }
       });
     }
+    verifiedTabs.add(cacheKey);
   } catch (err) {
     console.warn(`Could not verify sheet tab '${sheetName}':`, err.message);
   }
