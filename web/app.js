@@ -2528,10 +2528,10 @@ function handleExcelFileSelect(e) {
   const reader = new FileReader();
   reader.onload = (event) => {
     try {
-      const data = event.target.result;
+      const data = new Uint8Array(event.target.result);
       let workbook;
       if (typeof XLSX !== 'undefined') {
-        workbook = XLSX.read(data, { type: 'binary' });
+        workbook = XLSX.read(data, { type: 'array' });
       }
 
       parseExcelWorkbook(workbook, file);
@@ -2540,7 +2540,7 @@ function handleExcelFileSelect(e) {
       showToast('خطأ في قراءة ملف Excel، يرجى التأكد من اختيار ملف .xlsx صالح', 'critical');
     }
   };
-  reader.readAsBinaryString(file);
+  reader.readAsArrayBuffer(file);
 }
 
 /**

@@ -246,9 +246,58 @@ async function _getSheetRowsInternal(sheetName) {
   }
 }
 
+}
+
+/**
+ * Batch Append Rows to Google Sheet (Single API Call for Scale)
+ */
+async function batchAppendSheetRows(sheetName, rowsArray) {
+  _batchAppendSheetRowsInternal(sheetName, rowsArray).catch(err => {
+    console.warn(`Background Batch Sheet Append Warning (${sheetName}):`, err.message);
+  });
+  return { sheetName, count: rowsArray ? rowsArray.length : 0, status: 'queued' };
+}
+
+async function _batchAppendSheetRowsInternal(sheetName, rowsArray) {
+  if (!rowsArray || rowsArray.length === 0) return;
+  const sheets = initSheetsClient();
+  const isStrictLive = process.env.GOOGLE_MODE === 'LIVE' || process.env.REQUIRE_LIVE_GOOGLE === 'true';
+
+  if (!sheets) {
+    if (isStrictLive) throw new Error(`GOOGLE SHEETS BATCH WRITE FAIL: Sheets client missing`);
+    return { sheetName, count: rowsArray.length, isSimulation: true };
+  }
+
+  try {
+    const spreadsheetId = await getOrCreateSpreadsheet(sheets);
+    await ensureSheetTabExists(sheets, spreadsheetId, sheetName);
+
+    const values = rowsArray.map(rowData => Array.isArray(rowData) ? rowData : Object.values(rowData));
+
+    // Batch append in 500 row chunks to respect Google API body payload limits
+    const CHUNK_SIZE = 500;
+    for (let i = 0; i < values.length; i += CHUNK_SIZE) {
+      const chunk = values.slice(i, i + CHUNK_SIZE);
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: `${sheetName}!A:Z`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: chunk }
+      });
+    }
+
+    return { spreadsheetId, count: values.length, isSimulation: false };
+  } catch (err) {
+    console.error(`❌ Google Sheets batch append error on ${sheetName}:`, err.message);
+    return { sheetName, count: rowsArray.length, error: err.message, isSimulation: true };
+  }
+}
+
 module.exports = {
   initSheetsClient,
   getOrCreateSpreadsheet,
   appendSheetRow,
+  batchAppendSheetRows,
   getSheetRows
 };
+

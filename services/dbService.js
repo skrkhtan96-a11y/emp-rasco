@@ -1,4 +1,4 @@
-const { appendSheetRow, getSheetRows } = require('./googleSheetsService');
+const { appendSheetRow, batchAppendSheetRows, getSheetRows } = require('./googleSheetsService');
 
 // In-memory cache for high-concurrency server responses, synchronized with Google Sheets
 let memoryCache = {
@@ -392,12 +392,24 @@ async function bulkSaveEmployees(empArray) {
   await initDb();
   if (!Array.isArray(empArray)) return [];
 
+  // Build O(1) index maps for instant lookup across thousands of employees
+  const idIndexMap = new Map();
+  const iqamaIndexMap = new Map();
+
+  memoryCache.employees.forEach((e, idx) => {
+    if (e.id) idIndexMap.set(String(e.id).trim(), idx);
+    if (e.iqamaNumber) iqamaIndexMap.set(String(e.iqamaNumber).trim(), idx);
+  });
+
   const imported = [];
   for (const empData of empArray) {
+    const empId = String(empData.id || empData.EMP || empData.Employee_ID || Date.now() + Math.random()).trim();
+    const iqama = String(empData.iqamaNumber || empData.Iqama_Number || empData.ID_Number || empData.National_ID || '').trim();
+
     const emp = {
-      id: String(empData.id || empData.EMP || empData.Employee_ID || Date.now() + Math.random()).trim(),
+      id: empId,
       name: String(empData.name || empData.Name || empData.Employee_Name || '').trim(),
-      iqamaNumber: String(empData.iqamaNumber || empData.Iqama_Number || empData.ID_Number || empData.National_ID || '').trim(),
+      iqamaNumber: iqama,
       jobTitle: String(empData.jobTitle || empData.Job_Title || empData.Occupation || '').trim(),
       region: String(empData.region || empData.Location || empData.Region_ID || '').trim(),
       project: String(empData.project || empData.Project_Name || empData.Project_ID || '').trim(),
@@ -409,28 +421,30 @@ async function bulkSaveEmployees(empArray) {
       updatedAt: new Date().toISOString()
     };
 
-    const idx = memoryCache.employees.findIndex(e =>
-      String(e.id).trim() === emp.id ||
-      (emp.iqamaNumber && String(e.iqamaNumber).trim() === emp.iqamaNumber)
-    );
+    let idx = idIndexMap.has(empId) ? idIndexMap.get(empId) : -1;
+    if (idx === -1 && iqama && iqamaIndexMap.has(iqama)) {
+      idx = iqamaIndexMap.get(iqama);
+    }
 
     if (idx !== -1) {
       memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
       imported.push(memoryCache.employees[idx]);
     } else {
+      const newIdx = memoryCache.employees.length;
       memoryCache.employees.push(emp);
+      idIndexMap.set(empId, newIdx);
+      if (iqama) iqamaIndexMap.set(iqama, newIdx);
       imported.push(emp);
     }
   }
 
-  // Non-blocking background sync to Google Sheets
+  // Non-blocking single batch sync to Google Sheets
   (async () => {
-    for (const emp of imported) {
-      try {
-        await appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp));
-      } catch (err) {
-        console.error('Bulk sheet sync item error:', err.message);
-      }
+    try {
+      const rows = imported.map(emp => mapObjectToRow(SCHEMAS.Employees, emp));
+      await batchAppendSheetRows('Employees', rows);
+    } catch (err) {
+      console.error('Background batch sheet sync error:', err.message);
     }
   })();
 
