@@ -343,53 +343,49 @@ async function getEmployeeByIqama(iqamaNumber) {
 }
 
 async function saveEmployee(empData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const emp = {
-      id: empData.id || empData.Employee_ID || String(Date.now()),
-      name: empData.name || empData.Employee_Name || '',
-      iqamaNumber: empData.iqamaNumber || empData.Iqama_Number || empData.National_ID || '',
-      jobTitle: empData.jobTitle || empData.Job_Title || empData.Occupation || '',
-      region: empData.region || empData.Region_ID || empData.Location || '',
-      project: empData.project || empData.Project_Name || empData.Project_ID || '',
-      nationality: empData.nationality || empData.Nationality || '',
-      absherNumber: empData.absherNumber || empData.Absher_Number || empData.Mobile_Number || '',
-      phone: empData.phone || empData.Phone || '',
-      status: empData.status || empData.Status || 'غير مكتمل',
-      portalStatus: empData.portalStatus || empData.Portal_Status || 'في الانتظار',
-      updatedAt: new Date().toISOString()
-    };
+  await initDb();
+  const emp = {
+    id: empData.id || empData.Employee_ID || String(Date.now()),
+    name: empData.name || empData.Employee_Name || '',
+    iqamaNumber: empData.iqamaNumber || empData.Iqama_Number || empData.National_ID || '',
+    jobTitle: empData.jobTitle || empData.Job_Title || empData.Occupation || '',
+    region: empData.region || empData.Region_ID || empData.Location || '',
+    project: empData.project || empData.Project_Name || empData.Project_ID || '',
+    nationality: empData.nationality || empData.Nationality || '',
+    absherNumber: empData.absherNumber || empData.Absher_Number || empData.Mobile_Number || '',
+    phone: empData.phone || empData.Phone || '',
+    status: empData.status || empData.Status || 'غير مكتمل',
+    portalStatus: empData.portalStatus || empData.Portal_Status || 'في الانتظار',
+    updatedAt: new Date().toISOString()
+  };
 
-    const idx = memoryCache.employees.findIndex(e => String(e.id) === String(emp.id) || (emp.iqamaNumber && String(e.iqamaNumber).trim() === String(emp.iqamaNumber).trim()));
+  const idx = memoryCache.employees.findIndex(e => String(e.id) === String(emp.id) || (emp.iqamaNumber && String(e.iqamaNumber).trim() === String(emp.iqamaNumber).trim()));
 
-    if (idx !== -1) {
-      memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
-      appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, memoryCache.employees[idx])).catch(err => console.error('Sheet append error:', err.message));
-      return memoryCache.employees[idx];
-    } else {
-      memoryCache.employees.push(emp);
-      appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp)).catch(err => console.error('Sheet append error:', err.message));
-      return emp;
-    }
-  });
+  if (idx !== -1) {
+    memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
+    appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, memoryCache.employees[idx])).catch(err => console.error('Sheet append error:', err.message));
+    return memoryCache.employees[idx];
+  } else {
+    memoryCache.employees.push(emp);
+    appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, emp)).catch(err => console.error('Sheet append error:', err.message));
+    return emp;
+  }
 }
 
 async function updateEmployee(id, updateData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const idx = memoryCache.employees.findIndex(e => String(e.id) === String(id));
-    if (idx === -1) return null;
+  await initDb();
+  const idx = memoryCache.employees.findIndex(e => String(e.id) === String(id));
+  if (idx === -1) return null;
 
-    const updated = {
-      ...memoryCache.employees[idx],
-      ...updateData,
-      updatedAt: new Date().toISOString()
-    };
+  const updated = {
+    ...memoryCache.employees[idx],
+    ...updateData,
+    updatedAt: new Date().toISOString()
+  };
 
-    memoryCache.employees[idx] = updated;
-    appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, updated)).catch(err => console.error('Sheet append error:', err.message));
-    return updated;
-  });
+  memoryCache.employees[idx] = updated;
+  appendSheetRow('Employees', mapObjectToRow(SCHEMAS.Employees, updated)).catch(err => console.error('Sheet append error:', err.message));
+  return updated;
 }
 
 async function bulkSaveEmployees(empArray) {
@@ -455,29 +451,27 @@ async function getDocumentsByEmployeeId(empId) {
 }
 
 async function saveDocument(docData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const doc = {
-      id: docData.fileId || `DOC-${Date.now()}`,
-      employeeId: docData.employeeId || '',
-      iqamaNumber: docData.iqamaNumber || '',
-      employeeName: docData.employeeName || '',
-      docType: docData.docType || 'Document',
-      storedFileName: docData.storedFileName || '',
-      originalFileName: docData.originalFileName || '',
-      folderName: docData.folderName || '',
-      folderId: docData.folderId || '',
-      mimeType: docData.mimeType || '',
-      fileSize: docData.fileSize || 0,
-      webViewLink: docData.webViewLink || '',
-      uploadedAt: new Date().toISOString(),
-      status: 'مرفوع'
-    };
+  await initDb();
+  const doc = {
+    id: docData.fileId || `DOC-${Date.now()}`,
+    employeeId: docData.employeeId || '',
+    iqamaNumber: docData.iqamaNumber || '',
+    employeeName: docData.employeeName || '',
+    docType: docData.docType || 'Document',
+    storedFileName: docData.storedFileName || '',
+    originalFileName: docData.originalFileName || '',
+    folderName: docData.folderName || '',
+    folderId: docData.folderId || '',
+    mimeType: docData.mimeType || '',
+    fileSize: docData.fileSize || 0,
+    webViewLink: docData.webViewLink || '',
+    uploadedAt: new Date().toISOString(),
+    status: 'مرفوع'
+  };
 
-    memoryCache.documents.push(doc);
-    await appendSheetRow('Employee_Documents', mapObjectToRow(SCHEMAS.Employee_Documents, doc));
-    return doc;
-  });
+  memoryCache.documents.push(doc);
+  appendSheetRow('Employee_Documents', mapObjectToRow(SCHEMAS.Employee_Documents, doc)).catch(e => console.error(e));
+  return doc;
 }
 
 // ------------------------------------
@@ -495,41 +489,37 @@ async function getUserByUsername(username) {
 }
 
 async function saveUser(userData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const user = {
-      id: userData.id || `USR-${Date.now()}`,
-      username: userData.username || '',
-      passwordHash: userData.passwordHash || '',
-      name: userData.name || '',
-      role: userData.role || 'Supervisor',
-      status: userData.status || 'نشط',
-      allowedRegions: userData.allowedRegions || 'ALL',
-      allowedProjects: userData.allowedProjects || 'ALL',
-      createdAt: new Date().toISOString()
-    };
+  await initDb();
+  const user = {
+    id: userData.id || `USR-${Date.now()}`,
+    username: userData.username || '',
+    passwordHash: userData.passwordHash || '',
+    name: userData.name || '',
+    role: userData.role || 'Supervisor',
+    status: userData.status || 'نشط',
+    allowedRegions: userData.allowedRegions || 'ALL',
+    allowedProjects: userData.allowedProjects || 'ALL',
+    createdAt: new Date().toISOString()
+  };
 
-    memoryCache.users.push(user);
-    await appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, user));
-    return user;
-  });
+  memoryCache.users.push(user);
+  appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, user)).catch(e => console.error(e));
+  return user;
 }
 
 async function updateUser(id, updateData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const idx = memoryCache.users.findIndex(u => String(u.id) === String(id));
-    if (idx === -1) return null;
+  await initDb();
+  const idx = memoryCache.users.findIndex(u => String(u.id) === String(id));
+  if (idx === -1) return null;
 
-    const updated = {
-      ...memoryCache.users[idx],
-      ...updateData
-    };
+  const updated = {
+    ...memoryCache.users[idx],
+    ...updateData
+  };
 
-    memoryCache.users[idx] = updated;
-    await appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, updated));
-    return updated;
-  });
+  memoryCache.users[idx] = updated;
+  appendSheetRow('Users', mapObjectToRow(SCHEMAS.Users, updated)).catch(e => console.error(e));
+  return updated;
 }
 
 // ------------------------------------
@@ -541,35 +531,31 @@ async function getNotifications() {
 }
 
 async function addNotification(notifData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const notif = {
-      id: notifData.id || `NTF-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      type: notifData.type || 'INFO',
-      title: notifData.title || 'إشعار جديد',
-      message: notifData.message || '',
-      targetRole: notifData.targetRole || 'ALL',
-      employeeId: notifData.employeeId || '',
-      read: 'false',
-      timestamp: new Date().toISOString()
-    };
+  await initDb();
+  const notif = {
+    id: notifData.id || `NTF-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    type: notifData.type || 'INFO',
+    title: notifData.title || 'إشعار جديد',
+    message: notifData.message || '',
+    targetRole: notifData.targetRole || 'ALL',
+    employeeId: notifData.employeeId || '',
+    read: 'false',
+    timestamp: new Date().toISOString()
+  };
 
-    memoryCache.notifications.unshift(notif);
-    await appendSheetRow('Notifications', mapObjectToRow(SCHEMAS.Notifications, notif));
-    return notif;
-  });
+  memoryCache.notifications.unshift(notif);
+  appendSheetRow('Notifications', mapObjectToRow(SCHEMAS.Notifications, notif)).catch(e => console.error(e));
+  return notif;
 }
 
 async function markNotificationRead(id) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const item = memoryCache.notifications.find(n => String(n.id) === String(id));
-    if (item) {
-      item.read = 'true';
-      await appendSheetRow('Notifications', mapObjectToRow(SCHEMAS.Notifications, item));
-    }
-    return item;
-  });
+  await initDb();
+  const item = memoryCache.notifications.find(n => String(n.id) === String(id));
+  if (item) {
+    item.read = 'true';
+    appendSheetRow('Notifications', mapObjectToRow(SCHEMAS.Notifications, item)).catch(e => console.error(e));
+  }
+  return item;
 }
 
 async function getActivityLogs() {
@@ -578,23 +564,21 @@ async function getActivityLogs() {
 }
 
 async function addActivityLog(logData) {
-  return dbWriteMutex.runExclusive(async () => {
-    await initDb();
-    const log = {
-      id: logData.id || `LOG-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      userId: logData.userId || 'SYSTEM',
-      userName: logData.userName || 'النظام',
-      employeeId: logData.employeeId || '',
-      action: logData.action || 'نشاط',
-      details: logData.details || '',
-      timestamp: new Date().toISOString(),
-      source: logData.source || 'WEB'
-    };
+  await initDb();
+  const log = {
+    id: logData.id || `LOG-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    userId: logData.userId || 'SYSTEM',
+    userName: logData.userName || 'النظام',
+    employeeId: logData.employeeId || '',
+    action: logData.action || 'نشاط',
+    details: logData.details || '',
+    timestamp: new Date().toISOString(),
+    source: logData.source || 'WEB'
+  };
 
-    memoryCache.activityLogs.unshift(log);
-    await appendSheetRow('Activity_Log', mapObjectToRow(SCHEMAS.Activity_Log, log));
-    return log;
-  });
+  memoryCache.activityLogs.unshift(log);
+  appendSheetRow('Activity_Log', mapObjectToRow(SCHEMAS.Activity_Log, log)).catch(e => console.error(e));
+  return log;
 }
 
 module.exports = {
