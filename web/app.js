@@ -1591,10 +1591,32 @@ function renderEmployeesTable(employees) {
         </div>
       </td>
       <td>
-        <button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')"><i class="fa-solid fa-pen-to-square"></i> عرض وتحديث</button>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="btn-sm btn-primary" onclick="openEmployeeDetailsPage('${emp.Employee_ID}')"><i class="fa-solid fa-pen-to-square"></i> عرض وتحديث</button>
+          <button class="btn-sm" onclick="deleteEmployeePrompt('${emp.Employee_ID}', '${emp.Employee_Name}')" style="background:#EF4444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;" title="حذف الموظف"><i class="fa-solid fa-trash"></i></button>
+        </div>
       </td>
     </tr>
   `).join('');
+
+function deleteEmployeePrompt(empId, empName) {
+  if (!confirm(`هل أنت محقق من رغبتك في حذف الموظف "${empName}" نهائياً من قاعدة البيانات؟`)) return;
+
+  fetch(`/api/employees/${encodeURIComponent(empId)}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showToast(`✓ تم حذف الموظف ${empName} بنجاح من قاعدة البيانات`, 'success');
+        loadData();
+      } else {
+        showToast(`❌ تعذر الحذف: ${data.error || 'خطأ في السيرفر'}`, 'error');
+      }
+    })
+    .catch(err => {
+      console.error('Delete employee error:', err);
+      showToast('❌ تعذر الاتصال بالخادم لحذف الموظف', 'error');
+    });
+}
 
   // Mobile Cards View Container
   const mobileCardsContainer = ensureMobileCardsContainer('employeesTbody', 'employeesMobileCards');

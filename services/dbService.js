@@ -155,8 +155,8 @@ async function initDb(forceRefresh = false) {
     return memoryCache;
   }
 
-  if (!memoryCache.employees || memoryCache.employees.length === 0) {
-    memoryCache.employees = generate1600ScaleDataset();
+  if (!memoryCache.employees) {
+    memoryCache.employees = [];
   }
   if (!memoryCache.users || memoryCache.users.length === 0) {
     memoryCache.users = [
@@ -397,19 +397,20 @@ async function bulkSaveEmployees(empArray) {
   await initDb();
   if (!Array.isArray(empArray)) return [];
 
-  // Build O(1) index maps for instant lookup across thousands of employees
-  const idIndexMap = new Map();
-  const iqamaIndexMap = new Map();
+  // Deduplicate incoming array by ID & Iqama (Source of Truth)
+  const idSeenMap = new Map();
+  const iqamaSeenMap = new Map();
+  const cleanEmployees = [];
 
-  memoryCache.employees.forEach((e, idx) => {
-    if (e.id) idIndexMap.set(String(e.id).trim(), idx);
-    if (e.iqamaNumber) iqamaIndexMap.set(String(e.iqamaNumber).trim(), idx);
-  });
-
-  const imported = [];
   for (const empData of empArray) {
     const empId = String(empData.id || empData.EMP || empData.Employee_ID || Date.now() + Math.random()).trim();
     const iqama = String(empData.iqamaNumber || empData.Iqama_Number || empData.ID_Number || empData.National_ID || '').trim();
+
+    if (!empId && !iqama) continue;
+
+    // Skip duplicates within the same import payload
+    if (empId && idSeenMap.has(empId)) continue;
+    if (iqama && iqamaSeenMap.has(iqama)) continue;
 
     const emp = {
       id: empId,
@@ -426,34 +427,47 @@ async function bulkSaveEmployees(empArray) {
       updatedAt: new Date().toISOString()
     };
 
-    let idx = idIndexMap.has(empId) ? idIndexMap.get(empId) : -1;
-    if (idx === -1 && iqama && iqamaIndexMap.has(iqama)) {
-      idx = iqamaIndexMap.get(iqama);
-    }
-
-    if (idx !== -1) {
-      memoryCache.employees[idx] = { ...memoryCache.employees[idx], ...emp };
-      imported.push(memoryCache.employees[idx]);
-    } else {
-      const newIdx = memoryCache.employees.length;
-      memoryCache.employees.push(emp);
-      idIndexMap.set(empId, newIdx);
-      if (iqama) iqamaIndexMap.set(iqama, newIdx);
-      imported.push(emp);
-    }
+    cleanEmployees.push(emp);
+    if (empId) idSeenMap.set(empId, true);
+    if (iqama) iqamaSeenMap.set(iqama, true);
   }
+
+  // FULL REPLACE: Excel is the single source of truth. Replace memoryCache.employees completely.
+  memoryCache.employees = cleanEmployees;
 
   // Non-blocking single batch sync to Google Sheets
   (async () => {
     try {
-      const rows = imported.map(emp => mapObjectToRow(SCHEMAS.Employees, emp));
+      const rows = cleanEmployees.map(emp => mapObjectToRow(SCHEMAS.Employees, emp));
       await batchAppendSheetRows('Employees', rows);
     } catch (err) {
       console.error('Background batch sheet sync error:', err.message);
     }
   })();
 
-  return imported;
+  return cleanEmployees;
+}
+
+async function deleteEmployee(id) {
+  await initDb();
+  const cleanId = String(id).trim();
+  const idx = memoryCache.employees.findIndex(e =>
+    String(e.id).trim() === cleanId ||
+    (e.iqamaNumber && String(e.iqamaNumber).trim() === cleanId)
+  );
+
+  if (idx !== -1) {
+    const deleted = memoryCache.employees.splice(idx, 1)[0];
+    return deleted;
+  }
+  return null;
+}
+
+async function deleteAllEmployees() {
+  await initDb();
+  const count = memoryCache.employees.length;
+  memoryCache.employees = [];
+  return count;
 }
 
 // ------------------------------------
@@ -609,6 +623,8 @@ module.exports = {
   saveEmployee,
   bulkSaveEmployees,
   updateEmployee,
+  deleteEmployee,
+  deleteAllEmployees,
   getDocuments,
   getDocumentsByEmployeeId,
   saveDocument,

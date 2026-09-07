@@ -17,6 +17,8 @@ const {
   saveEmployee,
   bulkSaveEmployees,
   updateEmployee,
+  deleteEmployee,
+  deleteAllEmployees,
   getDocuments,
   getDocumentsByEmployeeId,
   saveDocument,
@@ -255,6 +257,38 @@ app.patch('/api/employees/:id', async (req, res) => {
       source: 'ADMIN_DASHBOARD'
     });
     res.json({ success: true, employee: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/employees/:id', async (req, res) => {
+  try {
+    const deleted = await deleteEmployee(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: 'الموظف غير موجود' });
+    }
+    await addActivityLog({
+      action: 'حذف موظف',
+      employeeId: deleted.id,
+      details: `تم حذف الموظف ${deleted.name} (${deleted.iqamaNumber})`,
+      source: 'ADMIN_DASHBOARD'
+    });
+    res.json({ success: true, message: 'تم حذف الموظف بنجاح', employee: deleted });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/employees', async (req, res) => {
+  try {
+    const count = await deleteAllEmployees();
+    await addActivityLog({
+      action: 'مسح جميع الموظفين',
+      details: `تم مسح جميع الموظفين (${count} موظف)`,
+      source: 'ADMIN_DASHBOARD'
+    });
+    res.json({ success: true, message: `تم مسح ${count} موظف بنجاح` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
