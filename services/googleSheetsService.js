@@ -135,12 +135,10 @@ async function ensureSheetTabExists(sheets, spreadsheetId, sheetName) {
  * Append Row to a specific Google Sheet
  */
 async function appendSheetRow(sheetName, rowData) {
-  return withTimeout(_appendSheetRowInternal(sheetName, rowData), 5000, {
-    sheetName,
-    rowData,
-    isSimulation: true,
-    error: 'Google Sheets write timeout (5s limit exceeded)'
+  _appendSheetRowInternal(sheetName, rowData).catch(err => {
+    console.warn(`Background Sheet Append Warning (${sheetName}):`, err.message);
   });
+  return { sheetName, rowData, status: 'queued' };
 }
 
 async function _appendSheetRowInternal(sheetName, rowData) {
