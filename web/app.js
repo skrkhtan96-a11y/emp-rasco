@@ -2719,95 +2719,42 @@ function confirmExcelImport() {
     return;
   }
 
-  // Clear old cache — start fresh from this import
-  state.employees = [];
-  state.selectedRegion  = 'ALL';
-  state.selectedProject = 'ALL';
-  state.currentPage     = 1;
+  showToast(`⏳ جاري حفظ واستيراد ${parsedImportData.rows.length} موظف إلى Google Sheets والقاعدة المركزية...`, 'info');
 
-  parsedImportData.rows.forEach((r, idx) => {
-    // Use EXACT values from Excel — no fallbacks, no guessing
-    const locStr  = (r.Location     || '').trim();
-    const projStr = (r.Project_Name || '').trim();
-    const name    = (r.Name         || '').trim();
-    const empNo   = (r.EMP          || '').trim();
-    const idNum   = (r.ID_Number    || '').trim();
+  const payloadEmployees = parsedImportData.rows.map((r, idx) => ({
+    id: (r.EMP || '').trim() || `EMP-${String(idx + 1).padStart(5, '0')}`,
+    name: (r.Name || '').trim(),
+    iqamaNumber: (r.ID_Number || '').trim(),
+    jobTitle: '',
+    region: (r.Location || '').trim(),
+    project: (r.Project_Name || '').trim(),
+    nationality: '',
+    absherNumber: '',
+    phone: '',
+    status: 'غير مكتمل',
+    portalStatus: 'في الانتظار'
+  }));
 
-    const empId = `EMP-${String(idx + 1).padStart(5, '0')}`;
-
-    state.employees.push({
-      Employee_ID:                empId,
-      Employee_Number:            empNo,
-      Employee_Name:              name,
-      Nationality:                '',
-      Job_Title:                  '',
-      // Location = exact raw value from Excel (e.g. 'RUH', 'QSM', 'RUH - AIRPORT')
-      Location:                   locStr,
-      Region_ID:                  locStr,   // mirrors Location
-      Region_Name:                locStr,   // SAME as Location — no translation
-      Project_ID:                 projStr,  // use name as ID (no separate ID in Excel)
-      Project_Name:               projStr,  // exact raw value from Excel
-      Sheet_Source:               r.Sheet_Source || '',
-      Mobile_Number:              '',
-      Iqama_Number:               idNum,
-      Iqama_Expiry_Date:          '',
-      Passport_Number:            '',
-      Passport_Expiry_Date:       '',
-      Driving_License_Available:  'No',
-      Driving_License_Number:     '',
-      Driving_License_Expiry_Date:'',
-      Forklift_License_Available: 'No',
-      Forklift_License_Number:    '',
-      Forklift_License_Expiry_Date:'',
-      Employee_Status:            'Active',
-      Filling_Status:             'Not Started',
-      Profile_Completion_Percentage: 20,
-      Missing_Documents:          'الإقامة، الجواز',
-      First_Filled_By_Name:       state.currentUser ? state.currentUser.Full_Name : 'Excel Import',
-      Last_Updated_By_Name:       state.currentUser ? state.currentUser.Full_Name : 'Excel Import',
-      Last_Updated_At:            new Date().toLocaleDateString('ar-SA'),
-      StoredDocs:                 {}
-    });
-  });
-
-  // Persist to localStorage
-  localStorage.setItem('rassco_employees_override', JSON.stringify(state.employees));
-  logActivity('Excel Imported', true, '', '', `استيراد كامل: ${state.employees.length} موظف من ${parsedImportData.sheetNames.length} sheets — ${parsedImportData.fileName}`);
-
-  // Build actual region/project report from imported data
-  const regMap = {};
-  state.employees.forEach(e => {
-    const loc = e.Location;
-    const proj = e.Project_Name;
-    if (loc) {
-      if (!regMap[loc]) regMap[loc] = { count: 0, projects: new Set() };
-      regMap[loc].count++;
-      if (proj) regMap[loc].projects.add(proj);
+  fetch('/api/excel/import', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ employees: payloadEmployees })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(`🎉 تم حفظ واستيراد ${data.importedCount || payloadEmployees.length} موظف بنجاح في Google Sheets والإنتاج!`, 'success');
+      cancelExcelImport();
+      loadData();
+      switchView('employees');
+    } else {
+      showToast(`❌ خطأ أثناء الاستيراد: ${data.error || 'تعذر الإكمال'}`, 'error');
     }
+  })
+  .catch(err => {
+    console.error('Excel import server error:', err);
+    showToast('❌ تعذر حفظ الاستيراد على الخادم المركزي. يرجى إعادة المحاولة.', 'error');
   });
-
-  const regionCount   = Object.keys(regMap).length;
-  const projectCount  = new Set(state.employees.map(e => e.Project_Name).filter(Boolean)).size;
-
-  // Update last import info box
-  const infoBox = document.getElementById('lastImportInfoBox');
-  if (infoBox) {
-    infoBox.innerHTML = `
-      <i class="fa-solid fa-circle-check" style="color:#10B981;"></i>
-      آخر استيراد: <strong>${parsedImportData.fileName}</strong>
-      (${state.employees.length.toLocaleString('ar-SA')} موظف |
-       ${regionCount} منطقة |
-       ${projectCount} مشروع) —
-      ${new Date().toLocaleDateString('ar-SA')}
-    `;
-  }
-
-  showToast(`🎉 تم استيراد ${state.employees.length.toLocaleString('ar-SA')} موظف من ${regionCount} منطقة و${projectCount} مشروع`, 'success');
-
-  cancelExcelImport();
-  populateRegionAndProjectDropdowns();  // Rebuild filters from real imported data
-  renderCurrentView();                  // Refresh all views
-  switchView('employees');
 }
 
 // Template Preserving Export Engine
