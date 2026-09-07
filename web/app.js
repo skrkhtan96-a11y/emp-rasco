@@ -320,7 +320,7 @@ function setupThemeToggle() {
 
 // Data Loader — Central Server APIs (Google Sheets & Google Drive)
 function loadData() {
-  fetch('/api/employees')
+  fetch('/api/employees?limit=50000')
     .then(res => res.json())
     .then(data => {
       if (data.success && Array.isArray(data.data)) {

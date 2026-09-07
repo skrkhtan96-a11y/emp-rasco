@@ -292,9 +292,14 @@ async function queryEmployees({
     );
   }
 
-  // 4. Server-Side Pagination
+  // 4. Server-Side Pagination & Limit Handling
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
-  const pageSize = Math.min(100, Math.max(10, parseInt(limit, 10) || 50));
+  const requestedLimit = String(limit).toLowerCase();
+  let pageSize = 50000;
+  if (requestedLimit !== 'all' && requestedLimit !== 'unlimited') {
+    pageSize = Math.min(50000, Math.max(1, parseInt(limit, 10) || 50000));
+  }
+
   const totalCount = filtered.length;
   const totalPages = Math.ceil(totalCount / pageSize) || 1;
   const startIndex = (pageNum - 1) * pageSize;
