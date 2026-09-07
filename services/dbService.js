@@ -151,13 +151,12 @@ function generate1600ScaleDataset() {
  * Initialize Database Sync with Cache Control
  */
 async function initDb(forceRefresh = false) {
-  const now = Date.now();
-  if (isInitialized && !forceRefresh && (now - lastSyncTime < CACHE_TTL_MS)) {
+  if (isInitialized && !forceRefresh) {
     return memoryCache;
   }
 
   return dbWriteMutex.runExclusive(async () => {
-    if (isInitialized && !forceRefresh && (Date.now() - lastSyncTime < CACHE_TTL_MS)) {
+    if (isInitialized && !forceRefresh) {
       return memoryCache;
     }
 
