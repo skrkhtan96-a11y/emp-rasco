@@ -321,7 +321,12 @@ async function getEmployees() {
 
 async function getEmployeeById(id) {
   await initDb();
-  return memoryCache.employees.find(e => String(e.id) === String(id));
+  if (!id) return null;
+  const cleanId = String(id).trim();
+  return memoryCache.employees.find(e =>
+    String(e.id || '').trim() === cleanId ||
+    (e.iqamaNumber && String(e.iqamaNumber || '').trim() === cleanId)
+  );
 }
 
 async function getEmployeeByIqama(iqamaNumber) {
