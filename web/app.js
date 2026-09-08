@@ -2869,14 +2869,20 @@ function confirmRemoveAllEmployeeData() {
     localStorage.setItem('rassco_backup_snapshot_' + backupId, JSON.stringify(backupSnapshot));
     localStorage.setItem('rassco_latest_backup_id', backupId);
 
-    state.employees = [];
-    localStorage.setItem('rassco_employees_override', JSON.stringify([]));
-
-    logActivity('All Employee Data Deleted', true, '', '', `إزالة كافة بيانات الموظفين مع إنشاء نسخة احتياطية: ${backupId}`);
-
-    closeRemoveEmployeesModal();
-    renderCurrentView();
-    showToast(`✓ تم إنشاء النسخة الاحتياطية (${backupId}) وإزالة كافة بيانات الموظفين بنجاح`, 'success');
+    fetch('/api/employees', { method: 'DELETE' })
+      .then(res => res.json())
+      .then(data => {
+        state.employees = [];
+        localStorage.removeItem('rassco_employees_override');
+        logActivity('All Employee Data Deleted', true, '', '', `إزالة كافة بيانات الموظفين مع إنشاء نسخة احتياطية: ${backupId}`);
+        closeRemoveEmployeesModal();
+        renderCurrentView();
+        showToast(`✓ تم إنشاء النسخة الاحتياطية (${backupId}) وإزالة كافة بيانات الموظفين بنجاح من السيرفر`, 'success');
+      })
+      .catch(err => {
+        console.error('Server delete all employees error:', err);
+        showToast('❌ تعذر إرسال أمر مسح البيانات إلى السيرفر الرئيسي', 'error');
+      });
   } catch (err) {
     console.error('Backup creation failed:', err);
     showToast('فشل إنشاء النسخة الاحتياطية الاحترازية، تم إلغاء عملية الحذف للحفاظ على سلامة البيانات', 'critical');
@@ -2904,16 +2910,16 @@ function confirmFullSystemReset() {
     return;
   }
 
+  fetch('/api/employees', { method: 'DELETE' }).catch(e => console.error(e));
   localStorage.removeItem('rassco_employees_override');
   localStorage.removeItem('rassco_users_list');
   localStorage.removeItem('rassco_uploaded_images');
   localStorage.removeItem('rassco_activity_logs');
 
-  generateLocalSeedEmployees();
-  initUsersState();
+  state.employees = [];
   closeFullResetModal();
   renderCurrentView();
-  showToast('✓ تم إعادة ضبط النظام بالكامل إلى الحالة المصنعية الأولى', 'success');
+  showToast('✓ تم إعادة ضبط النظام بالكامل وإزالة كافة البيانات من السيرفر', 'success');
 }
 
 // Manual Employee Creation
