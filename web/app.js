@@ -1702,13 +1702,25 @@ function openEmployeeDetailsPage(employeeId) {
   logActivity('Employee Opened', false, emp.Employee_ID, emp.Employee_Name, 'فتح شاشة تفاصيل الموظف');
 
   // Header Banner
-  document.getElementById('detEmpName').textContent = emp.Employee_Name;
-  document.getElementById('detEmpSubtitle').textContent = `الرقم الوظيفي: ${emp.Employee_Number} | ${emp.Region_Name || 'المنطقة الوسطى'} | مشروع ${emp.Project_Name}`;
+  const empNum = emp.Employee_Number || emp.Employee_ID || '-';
+  const regName = emp.Region_Name || emp.Location || emp.Region_ID || 'المنطقة الوسطى';
+  const prjName = emp.Project_Name || '-';
+  const compPct = emp.Profile_Completion_Percentage !== undefined ? emp.Profile_Completion_Percentage : 0;
+
+  document.getElementById('detEmpName').textContent = emp.Employee_Name || 'موظف';
+  document.getElementById('detEmpSubtitle').textContent = `الرقم الوظيفي: ${empNum} | ${regName} | مشروع: ${prjName}`;
   document.getElementById('detEmpAuditorInfo').innerHTML = `<i class="fa-solid fa-user-pen"></i> تم الإنشاء بواسطة: ${emp.First_Filled_By_Name || 'System Migration'} | آخر تحديث بواسطة: ${emp.Last_Updated_By_Name || 'المشرف'} (${emp.Last_Updated_At || 'اليوم'})`;
   
-  document.getElementById('detCompletionFill').style.width = `${emp.Profile_Completion_Percentage}%`;
-  document.getElementById('detCompletionText').textContent = `${emp.Profile_Completion_Percentage}%`;
+  document.getElementById('detCompletionFill').style.width = `${compPct}%`;
+  document.getElementById('detCompletionText').textContent = `${compPct}%`;
   document.getElementById('detFillingStatusBadge').innerHTML = getFillingStatusBadgeHTML(emp.Filling_Status);
+
+  // Fill Absher Number & Phone inputs
+  const detAbsherEl = document.getElementById('detAbsherNo');
+  if (detAbsherEl) detAbsherEl.value = emp.Absher_Number || emp.absherNumber || '';
+
+  const detPhoneEl = document.getElementById('detPhoneNo');
+  if (detPhoneEl) detPhoneEl.value = emp.Phone || emp.phone || '';
 
   // Portal status badge
   const portalBadge = document.getElementById('detPortalStatusBadge');
@@ -1929,6 +1941,21 @@ function saveAndOpenNextIncomplete() {
 function saveEmployeeDetailsFull() {
   if (!state.activeEmployee) return;
 
+  // Capture input fields from Details view
+  const detAbsherVal = document.getElementById('detAbsherNo')?.value.trim() || '';
+  const detPhoneVal = document.getElementById('detPhoneNo')?.value.trim() || '';
+  const detIqamaVal = document.getElementById('detIqamaNo')?.value.trim() || '';
+  const detIqamaExpVal = document.getElementById('detIqamaExp')?.value.trim() || '';
+  const detPassVal = document.getElementById('detPassNo')?.value.trim() || '';
+  const detPassExpVal = document.getElementById('detPassExp')?.value.trim() || '';
+
+  if (detAbsherVal) state.activeEmployee.Absher_Number = detAbsherVal;
+  if (detPhoneVal) state.activeEmployee.Phone = detPhoneVal;
+  if (detIqamaVal) state.activeEmployee.Iqama_Number = detIqamaVal;
+  if (detIqamaExpVal) state.activeEmployee.Iqama_Expiry_Date = detIqamaExpVal;
+  if (detPassVal) state.activeEmployee.Passport_Number = detPassVal;
+  if (detPassExpVal) state.activeEmployee.Passport_Expiry_Date = detPassExpVal;
+
   const userName = state.currentUser ? state.currentUser.Full_Name : 'المشرف المسؤول';
   const nowStr = new Date().toLocaleString('ar-SA');
 
@@ -1953,11 +1980,26 @@ function saveEmployeeDetailsFull() {
     state.activeEmployee.Filling_Status = 'In Progress';
   }
 
+  // Persist to Server via API
+  fetch(`/api/employees/${encodeURIComponent(state.activeEmployee.Employee_ID)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      absherNumber: state.activeEmployee.Absher_Number,
+      phone: state.activeEmployee.Phone,
+      iqamaNumber: state.activeEmployee.Iqama_Number,
+      iqamaExpiryDate: state.activeEmployee.Iqama_Expiry_Date,
+      passportNumber: state.activeEmployee.Passport_Number,
+      passportExpiryDate: state.activeEmployee.Passport_Expiry_Date,
+      status: state.activeEmployee.Filling_Status === 'Completed' ? 'مكتمل' : 'غير مكتمل'
+    })
+  }).catch(e => console.error('API sync error:', e));
+
   // Persist updated employee records to localStorage
   localStorage.setItem('rassco_employees_override', JSON.stringify(state.employees));
 
-  logActivity('Employee Updated', true, state.activeEmployee.Employee_ID, state.activeEmployee.Employee_Name, `تحديث بيانات وحالة اكتمال الموظف (${percentage}%)`);
-  showToast('✓ تم حفظ كافة بيانات الموظف وتتبع المسؤولية بنجاح', 'success');
+  logActivity('Employee Updated', true, state.activeEmployee.Employee_ID, state.activeEmployee.Employee_Name, `تحديث بيانات ورقم أبشر (${state.activeEmployee.Absher_Number || '-'}) للموظف (${percentage}%)`);
+  showToast('✓ تم حفظ كافة بيانات الموظف ورقم أبشر وتحديث السيرفر بنجاح', 'success');
 }
 
 // Toast Feedback Generator
